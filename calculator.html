@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>電卓</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background: #f0f0f0;
+      font-family: sans-serif;
+    }
+    .calculator {
+      background: #222;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    }
+    .display {
+      background: #111;
+      color: #fff;
+      font-size: 36px;
+      text-align: right;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      min-width: 240px;
+      min-height: 56px;
+      word-break: break-all;
+    }
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 64px);
+      gap: 10px;
+    }
+    button {
+      width: 64px;
+      height: 64px;
+      font-size: 20px;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .btn-num  { background: #444; color: #fff; }
+    .btn-op   { background: #f90; color: #fff; }
+    .btn-fn   { background: #888; color: #fff; }
+    .btn-eq   { background: #f90; color: #fff; }
+    .btn-zero { width: 138px; border-radius: 32px; }
+    button:active { opacity: 0.7; }
+  </style>
+</head>
+<body>
+<div class="calculator">
+  <div class="display" id="display">0</div>
+  <div class="buttons">
+    <button class="btn-fn" onclick="clearAll()">AC</button>
+    <button class="btn-fn" onclick="toggleSign()">+/-</button>
+    <button class="btn-fn" onclick="percent()">%</button>
+    <button class="btn-op" onclick="setOp('/')">÷</button>
+
+    <button class="btn-num" onclick="input('7')">7</button>
+    <button class="btn-num" onclick="input('8')">8</button>
+    <button class="btn-num" onclick="input('9')">9</button>
+    <button class="btn-op" onclick="setOp('*')">×</button>
+
+    <button class="btn-num" onclick="input('4')">4</button>
+    <button class="btn-num" onclick="input('5')">5</button>
+    <button class="btn-num" onclick="input('6')">6</button>
+    <button class="btn-op" onclick="setOp('-')">−</button>
+
+    <button class="btn-num" onclick="input('1')">1</button>
+    <button class="btn-num" onclick="input('2')">2</button>
+    <button class="btn-num" onclick="input('3')">3</button>
+    <button class="btn-op" onclick="setOp('+')">+</button>
+
+    <button class="btn-num btn-zero" onclick="input('0')">0</button>
+    <button class="btn-num" onclick="inputDot()">.</button>
+    <button class="btn-eq" onclick="calculate()">=</button>
+  </div>
+</div>
+<script>
+  let current = '0', prev = null, op = null, resetNext = false;
+
+  function updateDisplay(val) {
+    document.getElementById('display').textContent = val;
+  }
+
+  function input(digit) {
+    if (resetNext) { current = digit; resetNext = false; }
+    else current = current === '0' ? digit : current + digit;
+    updateDisplay(current);
+  }
+
+  function inputDot() {
+    if (resetNext) { current = '0.'; resetNext = false; }
+    else if (!current.includes('.')) current += '.';
+    updateDisplay(current);
+  }
+
+  function setOp(o) {
+    if (prev !== null && !resetNext) calculate();
+    prev = parseFloat(current);
+    op = o;
+    resetNext = true;
+  }
+
+  function calculate() {
+    if (op === null || prev === null) return;
+    const b = parseFloat(current);
+    let result;
+    if (op === '+') result = prev + b;
+    else if (op === '-') result = prev - b;
+    else if (op === '*') result = prev * b;
+    else if (op === '/') result = b === 0 ? 'エラー' : prev / b;
+    current = String(parseFloat(result.toFixed(10)));
+    updateDisplay(current);
+    prev = null; op = null; resetNext = true;
+  }
+
+  function clearAll() { current = '0'; prev = null; op = null; resetNext = false; updateDisplay('0'); }
+  function toggleSign() { current = String(parseFloat(current) * -1); updateDisplay(current); }
+  function percent() { current = String(parseFloat(current) / 100); updateDisplay(current); }
+</script>
+</body>
+</html>
