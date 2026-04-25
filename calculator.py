@@ -1,3 +1,22 @@
-a = 10
-b = 7
-print(a + b)
+print("電卓アプリ")
+print("----------")
+
+a = float(input("最初の数字を入力してください: "))
+op = input("計算の種類を入力してください (+ - * /): ")
+b = float(input("次の数字を入力してください: "))
+
+if op == "+":
+    result = a + b
+elif op == "-":
+    result = a - b
+elif op == "*":
+    result = a * b
+elif op == "/":
+    if b == 0:
+        result = "エラー: 0では割れません"
+    else:
+        result = a / b
+else:
+    result = "エラー: 不明な計算記号です"
+
+print(f"答え: {result}")
