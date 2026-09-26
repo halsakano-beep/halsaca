@@ -1,0 +1,987 @@
+<title>守破離 Claude道場</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@500;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --paper:#ECEFEA;
+  --paper-2:#E2E7E0;
+  --sheet:#F7F8F4;
+  --ink:#1B2220;
+  --ink-2:#4A5652;
+  --ink-3:#7C8884;
+  --rule:#CDD5CE;
+  --oribe:#2E6A4F;          /* 織部の緑釉 */
+  --oribe-soft:#D6E5DA;
+  --oribe-ink:#F4F8F5;
+  --kiseto:#A87A1E;         /* 黄瀬戸 */
+  --kiseto-soft:#F1E4C4;
+  --bengara:#A4452F;        /* 弁柄：誤答 */
+  --bengara-soft:#F3DDD5;
+  --code-bg:#1F2725;
+  --code-ink:#DCE7E0;
+  --shadow:0 1px 0 rgba(27,34,32,.04),0 8px 24px -12px rgba(27,34,32,.18);
+  --f-display:"Shippori Mincho B1","Hiragino Mincho ProN","Yu Mincho",serif;
+  --f-body:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --paper:#131816;--paper-2:#1A201E;--sheet:#1C2321;
+    --ink:#E4EBE6;--ink-2:#AAB6B1;--ink-3:#77837F;--rule:#2C3532;
+    --oribe:#6FB892;--oribe-soft:#1F3A2E;--oribe-ink:#0F1A15;
+    --kiseto:#D9AE55;--kiseto-soft:#3A3020;
+    --bengara:#E0826B;--bengara-soft:#3D2520;
+    --code-bg:#0D1110;--code-ink:#D2DED7;
+    --shadow:0 1px 0 rgba(0,0,0,.2),0 10px 28px -14px rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --paper:#131816;--paper-2:#1A201E;--sheet:#1C2321;
+  --ink:#E4EBE6;--ink-2:#AAB6B1;--ink-3:#77837F;--rule:#2C3532;
+  --oribe:#6FB892;--oribe-soft:#1F3A2E;--oribe-ink:#0F1A15;
+  --kiseto:#D9AE55;--kiseto-soft:#3A3020;
+  --bengara:#E0826B;--bengara-soft:#3D2520;
+  --code-bg:#0D1110;--code-ink:#D2DED7;
+  --shadow:0 1px 0 rgba(0,0,0,.2),0 10px 28px -14px rgba(0,0,0,.6);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--f-body);font-size:15px;line-height:1.8;
+  -webkit-font-smoothing:antialiased;
+}
+button{font:inherit;color:inherit}
+a{color:var(--oribe)}
+:focus-visible{outline:2px solid var(--oribe);outline-offset:2px;border-radius:4px}
+
+/* ---------- shell ---------- */
+.app{display:grid;grid-template-columns:292px minmax(0,1fr);min-height:100%}
+.rail{
+  position:sticky;top:env(safe-area-inset-top,0px);height:100vh;overflow-y:auto;
+  border-right:1px solid var(--rule);background:var(--paper-2);
+  padding:22px 18px 40px;display:flex;flex-direction:column;gap:22px;
+}
+.brand{display:flex;align-items:baseline;gap:10px;cursor:pointer;background:none;border:0;padding:0;text-align:left}
+.brand b{font-family:var(--f-display);font-weight:800;font-size:22px;letter-spacing:.04em}
+.brand span{font-size:11px;letter-spacing:.14em;color:var(--ink-3);text-transform:uppercase}
+.meter{display:grid;gap:6px}
+.meter-row{display:flex;justify-content:space-between;font-size:12px;color:var(--ink-2)}
+.meter-row strong{font-variant-numeric:tabular-nums;color:var(--ink)}
+.bar{height:6px;border-radius:3px;background:var(--rule);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--oribe);width:0;transition:width .5s ease}
+.navlinks{display:flex;gap:6px}
+.navlinks button{
+  flex:1;border:1px solid var(--rule);background:var(--sheet);border-radius:8px;
+  padding:6px 8px;font-size:12.5px;cursor:pointer;
+}
+.navlinks button[aria-current="true"]{border-color:var(--oribe);color:var(--oribe);font-weight:700}
+.stage-group{display:grid;gap:4px}
+.stage-head{display:flex;align-items:center;gap:10px;padding:0 4px 6px;border-bottom:1px solid var(--rule);margin-bottom:4px}
+.stage-kanji{font-family:var(--f-display);font-weight:800;font-size:26px;line-height:1;color:var(--oribe)}
+.stage-meta{display:grid;line-height:1.3}
+.stage-meta b{font-size:13px}
+.stage-meta small{font-size:11px;color:var(--ink-3)}
+.lesson-link{
+  display:grid;grid-template-columns:26px 1fr auto;align-items:center;gap:8px;
+  padding:7px 8px;border-radius:8px;border:0;background:none;text-align:left;cursor:pointer;
+  font-size:13.5px;line-height:1.4;color:var(--ink-2);
+}
+.lesson-link:hover{background:var(--sheet);color:var(--ink)}
+.lesson-link[aria-current="true"]{background:var(--sheet);color:var(--ink);box-shadow:inset 3px 0 0 var(--oribe)}
+.lesson-link .no{font-family:var(--f-mono);font-size:11px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.dot{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--ink-3);display:inline-grid;place-items:center}
+.done .dot{background:var(--oribe);border-color:var(--oribe)}
+.done .dot::after{content:"";width:6px;height:3px;border-left:1.5px solid var(--oribe-ink);border-bottom:1.5px solid var(--oribe-ink);transform:rotate(-45deg) translate(1px,-1px)}
+.theme-toggle{margin-top:auto;display:flex;gap:6px;font-size:12px;color:var(--ink-3);align-items:center}
+.theme-toggle button{border:1px solid var(--rule);background:var(--sheet);border-radius:6px;padding:2px 8px;cursor:pointer;font-size:12px}
+.theme-toggle button[aria-pressed="true"]{border-color:var(--oribe);color:var(--oribe)}
+
+.main{min-width:0;padding-inline:clamp(16px,5vw,64px);padding-block:40px 96px}
+.page{max-width:780px;margin:0 auto;display:grid;gap:36px}
+
+/* mobile top bar */
+.topbar{display:none}
+@media (max-width:880px){
+  .app{grid-template-columns:1fr}
+  .rail{
+    position:fixed;inset:0 auto 0 0;width:min(320px,86vw);z-index:40;height:100%;
+    transform:translateX(-102%);transition:transform .25s ease;box-shadow:var(--shadow);
+    padding-top:calc(22px + env(safe-area-inset-top,0px));
+  }
+  .rail.open{transform:none}
+  .scrim{position:fixed;inset:0;background:rgba(10,14,12,.45);z-index:30}
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    position:sticky;top:env(safe-area-inset-top,0px);z-index:20;
+    background:var(--paper);border-bottom:1px solid var(--rule);padding:10px 16px;
+  }
+  .topbar b{font-family:var(--f-display);font-size:17px}
+  .topbar button{border:1px solid var(--rule);background:var(--sheet);border-radius:8px;padding:4px 12px;font-size:13px;cursor:pointer}
+  .main{padding-block:24px 80px}
+}
+
+/* ---------- type ---------- */
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.35}
+h1{font-size:clamp(28px,4.4vw,40px);font-weight:800;letter-spacing:.02em}
+h2{font-size:22px;font-weight:700}
+h3{font-size:17px;font-weight:700}
+p{margin:0}
+.eyebrow{font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);font-weight:500}
+.lede{font-size:16.5px;color:var(--ink-2);max-width:62ch}
+.prose{display:grid;gap:14px;max-width:66ch}
+.prose ul,.prose ol{margin:0;padding-left:1.3em;display:grid;gap:6px}
+kbd{font-family:var(--f-mono);font-size:12px;border:1px solid var(--rule);border-bottom-width:2px;border-radius:5px;padding:0 5px;background:var(--sheet)}
+code{font-family:var(--f-mono);font-size:.88em;background:var(--paper-2);border-radius:4px;padding:1px 5px}
+
+/* ---------- home ---------- */
+.hero{display:grid;gap:18px;padding-top:8px}
+.hero-kanji{
+  display:flex;gap:clamp(10px,3vw,28px);font-family:var(--f-display);font-weight:800;
+  font-size:clamp(56px,11vw,112px);line-height:1;letter-spacing:.02em;
+}
+.hero-kanji span:nth-child(1){color:var(--ink)}
+.hero-kanji span:nth-child(2){color:var(--oribe)}
+.hero-kanji span:nth-child(3){color:transparent;-webkit-text-stroke:1.5px var(--ink-2)}
+.hero-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.btn{
+  display:inline-flex;align-items:center;gap:8px;border-radius:10px;padding:10px 18px;
+  border:1px solid var(--oribe);background:var(--oribe);color:var(--oribe-ink);
+  font-weight:700;cursor:pointer;font-size:14.5px;
+}
+.btn:hover{filter:brightness(1.07)}
+.btn.ghost{background:transparent;color:var(--oribe)}
+.btn.small{padding:6px 12px;font-size:13px}
+.hint{font-size:12.5px;color:var(--ink-3)}
+
+.stages{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+@media (max-width:760px){.stages{grid-template-columns:1fr}}
+.stage-card{
+  background:var(--sheet);border:1px solid var(--rule);border-radius:14px;padding:18px;
+  display:grid;gap:12px;align-content:start;
+}
+.stage-card header{display:flex;align-items:center;gap:12px}
+.stage-card .k{font-family:var(--f-display);font-weight:800;font-size:40px;line-height:1;color:var(--oribe)}
+.stage-card h3{font-size:16px}
+.stage-card .eyebrow{letter-spacing:.04em;text-transform:none}
+.stage-card p{font-size:13px;color:var(--ink-2);line-height:1.7}
+.stage-card ol{list-style:none;margin:0;padding:0;display:grid;gap:2px;border-top:1px dashed var(--rule);padding-top:10px}
+.stage-card li button{
+  width:100%;display:flex;gap:8px;align-items:center;background:none;border:0;padding:5px 0;
+  cursor:pointer;text-align:left;font-size:13.5px;line-height:1.4;color:var(--ink);
+}
+.stage-card li button:hover{color:var(--oribe)}
+.stage-card li .no{font-family:var(--f-mono);font-size:11px;color:var(--ink-3);width:20px;flex:none}
+.stage-card .ring{margin-left:auto}
+
+.principle{
+  display:grid;grid-template-columns:auto 1fr;gap:6px 18px;
+  border-top:1px solid var(--rule);padding-top:22px;
+}
+.principle dt{font-family:var(--f-display);font-weight:700;color:var(--oribe)}
+.principle dd{margin:0;color:var(--ink-2);font-size:14px}
+
+/* ---------- lesson ---------- */
+.lesson-head{display:grid;gap:12px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-size:12px;border:1px solid var(--rule);border-radius:999px;padding:2px 10px;color:var(--ink-2);background:var(--sheet)}
+.chip.stage{border-color:var(--oribe);color:var(--oribe);font-weight:700}
+.chip.done{background:var(--oribe);border-color:var(--oribe);color:var(--oribe-ink)}
+.goal{
+  display:grid;grid-template-columns:auto 1fr;gap:4px 14px;
+  background:var(--sheet);border:1px solid var(--rule);border-radius:12px;padding:16px 18px;
+}
+.goal .lbl{font-family:var(--f-display);font-weight:800;color:var(--kiseto);font-size:14px;padding-top:2px}
+.goal ul{margin:0;padding-left:1.1em;display:grid;gap:2px;font-size:14px}
+
+.section{display:grid;gap:14px}
+.section > h2{display:flex;align-items:baseline;gap:10px}
+.section > h2 small{font-family:var(--f-body);font-size:11.5px;letter-spacing:.14em;color:var(--ink-3);font-weight:500}
+
+.steps{list-style:none;margin:0;padding:0;display:grid;gap:0;counter-reset:s}
+.steps li{
+  counter-increment:s;display:grid;grid-template-columns:34px 1fr;gap:12px;
+  padding:12px 0;border-top:1px solid var(--rule);
+}
+.steps li:last-child{border-bottom:1px solid var(--rule)}
+.steps li::before{
+  content:counter(s);font-family:var(--f-mono);font-size:12px;width:26px;height:26px;border-radius:50%;
+  display:grid;place-items:center;border:1px solid var(--oribe);color:var(--oribe);margin-top:1px;
+}
+.steps b{font-weight:700}
+
+.pathline{font-family:var(--f-mono);font-size:12.5px;color:var(--ink-2)}
+.pathline span{border:1px solid var(--rule);border-radius:5px;padding:1px 6px;background:var(--sheet)}
+
+.tip{
+  border-left:3px solid var(--kiseto);background:var(--kiseto-soft);
+  padding:12px 16px;border-radius:0 10px 10px 0;font-size:14px;
+}
+.tip b{color:var(--kiseto)}
+
+.compare{overflow-x:auto;border:1px solid var(--rule);border-radius:12px;background:var(--sheet)}
+.compare table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:520px}
+.compare th,.compare td{padding:10px 14px;text-align:left;vertical-align:top;border-bottom:1px solid var(--rule)}
+.compare tr:last-child td{border-bottom:0}
+.compare th{font-size:11.5px;letter-spacing:.1em;color:var(--ink-3);font-weight:500;background:var(--paper-2)}
+.compare td:first-child{font-weight:700;white-space:nowrap}
+
+.drill{
+  border:1px solid var(--oribe);border-radius:14px;background:var(--sheet);overflow:hidden;
+}
+.drill-head{background:var(--oribe-soft);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.drill-head b{font-family:var(--f-display);font-size:16px;color:var(--oribe)}
+.drill-body{padding:16px 18px;display:grid;gap:12px;font-size:14px}
+.prompt{position:relative;background:var(--code-bg);color:var(--code-ink);border-radius:10px;padding:14px 16px 14px;font-family:var(--f-mono);font-size:12.8px;line-height:1.75;white-space:pre-wrap;word-break:break-word;overflow-x:auto}
+.prompt-wrap{display:grid;gap:6px}
+.prompt-bar{display:flex;justify-content:space-between;align-items:center;font-size:11.5px;color:var(--ink-3);letter-spacing:.08em}
+.copy{border:1px solid var(--rule);background:var(--paper);border-radius:6px;padding:2px 10px;font-size:12px;cursor:pointer}
+.copy.ok{border-color:var(--oribe);color:var(--oribe)}
+
+.quiz{display:grid;gap:18px}
+.q{display:grid;gap:10px}
+.q p.qt{font-weight:700}
+.opts{display:grid;gap:8px}
+.opt{
+  display:grid;grid-template-columns:22px 1fr;gap:10px;align-items:start;text-align:left;
+  border:1px solid var(--rule);background:var(--sheet);border-radius:10px;padding:10px 14px;cursor:pointer;font-size:14px;line-height:1.6;
+}
+.opt:hover:not([disabled]){border-color:var(--ink-3)}
+.opt .mk{font-family:var(--f-mono);font-size:12px;color:var(--ink-3);padding-top:1px}
+.opt.right{border-color:var(--oribe);background:var(--oribe-soft)}
+.opt.wrong{border-color:var(--bengara);background:var(--bengara-soft)}
+.opt[disabled]{cursor:default}
+.feedback{font-size:13.5px;color:var(--ink-2);border-left:2px solid var(--rule);padding-left:12px}
+.feedback b.r{color:var(--oribe)} .feedback b.w{color:var(--bengara)}
+
+.reflect{
+  font-family:var(--f-display);font-size:18px;line-height:1.7;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);
+  padding:20px 0;color:var(--ink);
+}
+.reflect small{display:block;font-family:var(--f-body);font-size:11.5px;letter-spacing:.16em;color:var(--ink-3);margin-bottom:6px}
+
+.finish{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding-top:6px}
+.pager{display:flex;gap:10px;flex-wrap:wrap}
+
+/* ---------- cheatsheet ---------- */
+.lookup{display:grid;gap:0;border-top:1px solid var(--rule)}
+.lookup-row{
+  display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) auto;gap:14px;align-items:center;
+  padding:12px 0;border-bottom:1px solid var(--rule);font-size:14px;
+}
+.lookup-row .use{font-weight:700;color:var(--oribe)}
+@media (max-width:600px){.lookup-row{grid-template-columns:1fr auto}.lookup-row .use{grid-column:1}}
+.filter{display:flex;gap:8px;flex-wrap:wrap}
+.search{width:100%;border:1px solid var(--rule);background:var(--sheet);border-radius:10px;padding:10px 14px;font:inherit;color:var(--ink)}
+
+.toast{
+  position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);
+  background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:10px;font-size:13.5px;
+  opacity:0;pointer-events:none;transition:.25s ease;z-index:60;
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+.fade{animation:fade .35s ease both}
+@keyframes fade{from{opacity:.001;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.fade{animation:none}.bar i,.rail{transition:none}}
+.note{font-size:12px;color:var(--ink-3)}
+</style>
+
+<div class="topbar">
+  <b>守破離 Claude道場</b>
+  <button type="button" id="menuBtn" aria-expanded="false" aria-controls="rail">目次</button>
+</div>
+
+<div class="app">
+  <aside class="rail" id="rail" aria-label="カリキュラム"></aside>
+  <main class="main" id="main" tabindex="-1"></main>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* =========================================================
+   カリキュラム定義
+   守：型を身につける / 破：型を広げる / 離：自分の型をつくる
+   ========================================================= */
+const STAGES = [
+  { id:"shu", kanji:"守", name:"基礎の型", sub:"画面と対話の作法",
+    desc:"画面の地図、頼み方、資料の渡し方、成果物の受け取り方。ここが崩れると後段がすべて不安定になる。" },
+  { id:"ha", kanji:"破", name:"文脈を持たせる", sub:"Projects・検索・連携",
+    desc:"毎回説明しなくても分かってくれる状態を作る。Claudeに自分の仕事の前提と外の世界を渡す段階。" },
+  { id:"ri", kanji:"離", name:"自分の型をつくる", sub:"Skills・拡張・エージェント",
+    desc:"繰り返す仕事を型に封じ、手元のPCやツールに手を伸ばさせ、作業ごと任せる。道具が身体の延長になる。" }
+];
+
+const LESSONS = [
+/* ---------------- 守 ---------------- */
+{ id:"l01", stage:"shu", title:"画面の地図を持つ", min:10,
+  lede:"デスクトップアプリはブラウザ版と同じアカウント・同じ履歴を共有しつつ、PCに常駐できる点が違う。まず迷わないための地図を頭に入れる。",
+  goals:["サイドバー・入力欄・モデル選択の位置を説明できる","新規チャットと過去チャットを行き来できる","設定画面の主要な区分を知っている"],
+  body:`<p>アプリを開くと、左に<b>サイドバー</b>（新規チャット、Projects、チャット履歴）、中央に<b>会話</b>、下部に<b>入力欄</b>が並ぶ。入力欄の周辺に、ファイル添付・機能の切り替え（検索、拡張思考など）・モデル選択が集まっている。</p>
+<p>ブラウザ版（claude.ai）との違いは主に三つ。PCのどこからでも呼び出せる<b>クイック入力</b>、ローカルのアプリやファイルに触れる<b>デスクトップ拡張（MCP）</b>、そしてフォルダを渡して作業を任せる<b>Cowork / Code</b>。この三つは「離」で扱う。</p>`,
+  steps:[
+    ["インストールとログイン","claude.ai/download から Mac / Windows 版を入れ、普段のアカウントでログインする。履歴や Projects はブラウザ版とそのまま共有される。"],
+    ["サイドバーを一周する","新規チャット、Projects、最近のチャットを順に開く。チャットはスター（お気に入り）で上部に固定できる。"],
+    ["モデルを確認する","入力欄付近のモデル名をクリックし、選べるモデルと説明を読む。日常は既定のまま、重い推論や長文は上位モデル、と覚えておけば十分。"],
+    ["設定を開く","左下のアカウント名から設定へ。プロフィール・機能（Capabilities）・コネクタ・拡張機能・一般などの区分がある。まだ何も変えなくてよい。"]
+  ],
+  tip:"メニュー名はアップデートで変わることがある。見つからないときは設定画面の検索や、Claude自身に「今のデスクトップアプリで◯◯はどこ？」と聞くのが早い。",
+  drill:{ title:"最初の一往復", text:"新しいチャットで、下のプロンプトをそのまま送る。返ってきた自己紹介文を、自分の言葉で一文だけ直して返信してみる。",
+    prompt:"私は法人営業をしています。これからあなたを仕事の相棒として使い込みたいです。\nまず、私があなたにできることを「今日すぐ使える」「慣れたら効く」「上級」の3段階で、各3つずつ短く教えてください。" },
+  quiz:[
+    { q:"デスクトップ版とブラウザ版の関係として正しいのは？",
+      o:["履歴やProjectsは別々に管理される","同じアカウントなら履歴やProjectsを共有する","デスクトップ版はオフラインで全機能が動く"],
+      a:1, why:"同じアカウントなら中身は共通。デスクトップ版はそこに「PC常駐」と「ローカル連携」が加わる形。" }
+  ],
+  reflect:"道具の地図は、使い込むほどに描き直される。最初の地図は粗くていい。"
+},
+{ id:"l02", stage:"shu", title:"頼み方の型", min:15,
+  lede:"出力の質は、ほぼ入力の質で決まる。長く書く必要はない。抜けやすい四つの要素を押さえるだけで、返答は大きく変わる。",
+  goals:["依頼を「目的・文脈・制約・形式」に分けて書ける","返答を編集・再生成で詰められる","一度で決めずに往復で仕上げる癖がつく"],
+  body:`<p>依頼文には四つの要素がある。<b>目的</b>（何のために）、<b>文脈</b>（誰に・どんな状況で）、<b>制約</b>（字数・トーン・避けたいこと）、<b>形式</b>（箇条書き・表・メール文など）。多くの失敗は「文脈」と「形式」の書き忘れから起きる。</p>
+<p>一発で完璧を狙わず、<b>往復で詰める</b>のが基本の構え。送ったメッセージは後から編集して送り直せるし、返答は再生成して別案を出せる。気に入らない点は「どこが・なぜ」違うのかを具体的に返すと、次の一手が鋭くなる。</p>`,
+  table:{ head:["要素","書き忘れると","一言の例"], rows:[
+    ["目的","無難で汎用的な答えになる","「来週の商談で先方の懸念を先回りしたい」"],
+    ["文脈","相手や状況がずれる","「相手は老舗神社の権禰宜、初回接触」"],
+    ["制約","長すぎ・硬すぎ・盛りすぎ","「300字以内、押し売り感は出さない」"],
+    ["形式","毎回整形し直す羽目になる","「件名と本文に分けて」"]
+  ]},
+  steps:[
+    ["四要素で書く","目的・文脈・制約・形式を一行ずつ書いてから送る。慣れたら一文に畳んでよい。"],
+    ["編集で直す","自分のメッセージにカーソルを合わせ、編集アイコンから書き直して再送する。分岐した会話は矢印で行き来できる。"],
+    ["再生成で比べる","返答の再試行ボタンで別案を出し、良いほうを採る。"],
+    ["具体的に返す","「もっと良く」ではなく「二段落目が説明過多。結論を先に」と返す。"]
+  ],
+  tip:"迷ったら最後に「不明点があれば、書き始める前に質問して」と一行添える。Claudeが前提を確認してから動くようになる。",
+  drill:{ title:"同じ依頼を二度書く", text:"まず一行だけで頼み、次に四要素で頼む。二つの返答を並べて違いを見る。",
+    prompt:"【目的】既存取引先に新カタログを案内し、面談の約束を取りたい\n【文脈】相手は文具事務機の販売店の仕入れ担当。半年ほど連絡が空いている\n【制約】250字以内。売り込み感を抑え、近況伺いから入る\n【形式】件名1案＋本文。最後に日程候補を2つ提示する形で\n\n不明点があれば、書き始める前に質問してください。" },
+  quiz:[
+    { q:"返答が「なんとなく違う」とき、最も効く次の一手は？",
+      o:["同じ依頼を丁寧な言葉で送り直す","どこがなぜ違うかを具体的に返す","新しいチャットを立ち上げて最初からやり直す"],
+      a:1, why:"違和感を言語化して返すと、Claudeはその差分だけを直せる。ずれの位置が分からないまま送り直しても当たりは引けない。" }
+  ],
+  reflect:"問いの解像度が、答えの解像度の上限になる。"
+},
+{ id:"l03", stage:"shu", title:"資料と画像を渡す", min:10,
+  lede:"説明するより、見せたほうが早いことは多い。PDF・画像・表計算・スクリーンショットを直接渡して、Claudeに読ませる。",
+  goals:["ファイルをドラッグ＆ドロップで添付できる","画像やスクショを根拠に質問できる","長い資料に対する質問の出し方を知っている"],
+  body:`<p>入力欄にファイルをドラッグするか、クリップ（＋）アイコンから添付する。PDF、Word、画像、CSV・Excelなど、仕事で扱う大半の形式を読める。画像は写真でも画面キャプチャでもよい。</p>
+<p>長い資料を渡したときは「要約して」だけで終わらせず、<b>読む目的</b>を添える。「この見積書で、前回から変わった条件だけ抜き出して」のように問いを絞ると、読み飛ばしが減る。</p>`,
+  steps:[
+    ["ドラッグで添付","デスクトップからファイルを入力欄に落とす。複数ファイルもまとめて渡せる。"],
+    ["目的と一緒に送る","「この資料を、◯◯の判断材料として読んで」と用途を添える。"],
+    ["根拠を求める","「どのページのどの記述からそう言えるか」を併記させると、確認が楽になる。"],
+    ["画像で聞く","カレンダーや管理画面のスクリーンショットを貼り、「この予定から今日の優先順位を」と頼む。"]
+  ],
+  tip:"大量の資料を毎回添付しているなら、それは Projects に置くべき合図。次の「破」で扱う。",
+  drill:{ title:"カレンダーのスクショから", text:"今日のカレンダー画面をキャプチャして添付し、下のプロンプトを送る。",
+    prompt:"添付は今日の予定表のスクリーンショットです。\n1. 予定を時系列で整理\n2. 各予定の前に準備しておくべきことを一行ずつ\n3. 空き時間に入れられそうな作業を2つ提案\n\n読み取れない箇所は推測せず「不明」と書いてください。" },
+  quiz:[
+    { q:"80ページの契約書を渡すとき、最も良い頼み方は？",
+      o:["「要約して」","「当社に不利な条項と、その根拠ページを挙げて」","「全部読んで覚えておいて」"],
+      a:1, why:"読む目的と根拠の出し方を指定すると、長い資料でも焦点が合う。" }
+  ],
+  reflect:"見せることは、説明の省略ではなく、解釈の余地を相手に渡すこと。"
+},
+{ id:"l04", stage:"shu", title:"Artifactsで形にする", min:15,
+  lede:"文書、表、図、小さなアプリ。会話の横に独立した成果物として出てくるのが Artifacts。対話しながら直し、完成したら共有する。",
+  goals:["Artifactを作らせ、対話で修正できる","版を行き来して比較できる","成果物を公開・共有・ダウンロードできる"],
+  body:`<p>まとまった成果物（長い文書、コード、図、インタラクティブなツール）を頼むと、会話とは別の画面に<b>Artifact</b>として表示される。修正は会話で頼めばよく、Artifact側には版の履歴が残る。</p>
+<p>ファイル作成の機能を有効にしていれば、Word・Excel・PowerPoint・PDFといった実ファイルとして書き出させることもできる。見せるだけならArtifact、配るならファイル、と使い分ける。</p>`,
+  steps:[
+    ["作らせる","「〜を作って」と頼む。短い答えではなく、まとまった成果物になる依頼が向いている。"],
+    ["部分だけ直す","「表の3列目だけ単位を千円に」のように範囲を限定して頼む。"],
+    ["版を比べる","Artifactの版切り替えで前の状態に戻れる。直しすぎたら戻せばいい。"],
+    ["共有する","公開してリンクを渡す、コピーする、ファイルとして保存する、のいずれか。社外に出す前に中身を必ず読む。"]
+  ],
+  tip:"ファイル作成（Excelやスライドの書き出し）は、設定の「機能」側で有効にしておく必要がある場合がある。",
+  drill:{ title:"小さな道具を作る", text:"日々の業務で繰り返す計算を、Artifactの小さなツールにしてもらう。",
+    prompt:"見積もり用の簡易計算ツールを作ってください。\n- 入力：単価、数量、値引率（%）、送料\n- 出力：小計、値引額、税込合計（税率10%）\n- 数字は3桁区切り、スマホでも崩れないレイアウトで\n- 入力値のサンプルを最初から入れておいてください" },
+  quiz:[
+    { q:"Artifactを修正しすぎて前のほうが良かった。どうする？",
+      o:["最初から作り直させる","版の履歴で前の状態に戻す","諦めて手で直す"],
+      a:1, why:"Artifactは版を保持している。戻ってから別方向に直すのが最短。" }
+  ],
+  reflect:"会話は流れ、成果物は残る。残るものには、形の責任がある。"
+},
+
+/* ---------------- 破 ---------------- */
+{ id:"l05", stage:"ha", title:"Projectsで文脈を固定する", min:15,
+  lede:"毎回同じ前提を説明しているなら、それは Projects の出番。資料と指示をひとつの部屋に置き、その中の会話すべてに効かせる。",
+  goals:["Projectを作り、ナレッジと指示を設定できる","何をナレッジに置き、何を指示に書くか判断できる","業務単位で部屋を分ける設計ができる"],
+  body:`<p>Projectは、<b>ナレッジ</b>（資料置き場）と<b>カスタム指示</b>（振る舞いのルール）を持つ部屋。その中で始めた会話は、すべてこの二つを前提に動く。</p>
+<p>分け方の基準は「前提が共有される単位」。たとえば<b>法人営業</b>、<b>授与品事業</b>、<b>社内研修</b>のように、読むべき資料と口調が変わる境目で部屋を分ける。</p>`,
+  table:{ head:["置き場所","入れるもの","例"], rows:[
+    ["ナレッジ","事実・資料・過去の成果物","商品カタログ、価格表、成約したメール文面"],
+    ["カスタム指示","振る舞い・口調・判断基準","「断定を避け、提案は2案まで」「社外文は敬語」"],
+    ["毎回の会話","その時だけの状況","「今回の相手は初回接触」"]
+  ]},
+  steps:[
+    ["Projectを作る","サイドバーの Projects から新規作成。名前は業務単位で。"],
+    ["ナレッジを入れる","よく参照する資料をアップロードする。多すぎると焦点がぼけるので、実際に使うものから。"],
+    ["指示を書く","口調、判断基準、出力形式の既定をカスタム指示に書く。"],
+    ["会話を始める","Projectの中で新規チャットを始め、前提の説明なしで頼んでみる。"]
+  ],
+  tip:"カスタム指示は短く。十行を超えたら、繰り返し出てくる手順は後で扱う Skills に切り出すほうが良い。",
+  drill:{ title:"営業の部屋をつくる", text:"「法人営業」Projectを作り、カスタム指示に下の文を貼る。カタログや過去の良いメールをナレッジに置いて、試しに一本メールを頼む。",
+    prompt:"あなたは私の法人営業の補佐です。\n- 社外向けの文は丁寧だが硬すぎない敬語で\n- 提案は多くても2案。それぞれの狙いを一行添える\n- 数字や実績はナレッジにあるものだけを使い、無い場合は「要確認」と書く\n- 私の下書きを直すときは、変えた箇所と理由を最後に箇条書きで" },
+  quiz:[
+    { q:"「価格表」と「提案は2案まで」は、それぞれどこに置く？",
+      o:["両方ともナレッジ","価格表はナレッジ、2案ルールはカスタム指示","両方ともカスタム指示"],
+      a:1, why:"事実や資料はナレッジ、振る舞いのルールは指示。役割を分けると、どちらも効きやすくなる。" }
+  ],
+  reflect:"部屋を分けることは、考えを分けること。混ぜると、どちらも薄くなる。"
+},
+{ id:"l06", stage:"ha", title:"自分仕様に整える", min:10,
+  lede:"プロフィールの好み、スタイル、拡張思考。どの会話にも効く「自分の癖」を設定しておくと、毎回の細かな指示が減る。",
+  goals:["プロフィールの個人設定に自分の好みを書ける","スタイルを使い分けられる","拡張思考を入れる場面を判断できる"],
+  body:`<p>設定のプロフィールにある<b>個人設定</b>は、すべての会話に効く自己紹介のようなもの。職種、よく扱う仕事、好む返答の形を書いておく。</p>
+<p><b>スタイル</b>は返答の書きぶりの切り替え。簡潔、説明的、フォーマルなどの既定に加え、自分の文章を渡して独自スタイルを作れる。<b>拡張思考</b>をオンにすると、答える前に時間をかけて考える。企画の比較や込み入った判断で効き、単純な作業では待ち時間が増えるだけになる。</p>`,
+  table:{ head:["設定","効く範囲","向いている使い方"], rows:[
+    ["個人設定","全ての会話","職種・好む返答の形・避けたい言い回し"],
+    ["Projectの指示","そのProjectの中","業務ごとの口調や判断基準"],
+    ["スタイル","選んだ会話","同じ内容を短く／丁寧に／説明的に"],
+    ["拡張思考","オンにした会話","比較検討、戦略、込み入った推論"]
+  ]},
+  steps:[
+    ["個人設定を書く","設定 → プロフィールで、仕事の内容と「率直な指摘がほしい」などの好みを書く。"],
+    ["スタイルを試す","入力欄のスタイル選択で「簡潔」に切り替え、同じ質問の返答を比べる。"],
+    ["独自スタイルを作る","自分が書いた文章を数本渡して、カスタムスタイルを作成する。"],
+    ["拡張思考を使い分ける","判断が要る質問でだけオンにする。"]
+  ],
+  tip:"個人設定には「お世辞は不要、ズレはやんわり率直に指摘して」のように、欲しい態度も書ける。態度の指定は内容の指定と同じくらい効く。",
+  drill:{ title:"自分の型を言語化する", text:"個人設定に何を書くべきか、Claude自身に聞き出してもらう。",
+    prompt:"あなたの個人設定欄に書く文章を一緒に作りたいです。\n私の仕事・判断の癖・好きな返答の形を把握するために、質問を1つずつ、合計5問してください。\n回答が揃ったら、個人設定欄にそのまま貼れる300字程度の文章にまとめてください。" },
+  quiz:[
+    { q:"拡張思考をオンにする価値が最も高いのは？",
+      o:["メールの誤字チェック","3つの販路案の長所短所を比較して1つ選ぶ","住所の表記統一"],
+      a:1, why:"複数の観点を比べて判断する問いほど、考える時間が質に変わる。" }
+  ],
+  reflect:"癖を書き出すと、癖は道具になる。"
+},
+{ id:"l07", stage:"ha", title:"検索とリサーチ", min:10,
+  lede:"Claudeの知識には期限がある。最新の情報が要る問いでは、ウェブ検索を使わせ、出典つきで答えさせる。",
+  goals:["ウェブ検索のオン・オフを切り替えられる","Researchで複数の情報源をまとめさせられる","出典を確認する習慣がある"],
+  body:`<p>入力欄の機能メニューから<b>ウェブ検索</b>を有効にすると、Claudeは必要に応じて検索し、出典リンクつきで答える。価格、法改正、企業の近況など、変わりうる情報では必ず使う。</p>
+<p>より広く深く調べたいときは<b>Research</b>を使う。複数の検索を重ねて報告書の形にまとめるため時間はかかるが、下調べの一次レポートとして強い。結論に使う数字は、必ず出典を開いて確かめる。</p>`,
+  steps:[
+    ["検索をオンにする","入力欄の機能切り替えでウェブ検索を有効にする。"],
+    ["問いを絞る","「◯◯市の文具事務機販売店で、法人向けに強い会社を5社」のように範囲と数を指定する。"],
+    ["出典を開く","答えに付いたリンクを実際に開き、記述と一致するか見る。"],
+    ["Researchを使う","業界動向など広い問いでは Research を選び、報告書として受け取る。"]
+  ],
+  tip:"「出典が見つからないものは書かないで」と一言添えると、推測で埋める余地が減る。",
+  drill:{ title:"営業先の下調べ", text:"ウェブ検索をオンにして送る。返ってきた出典を最低2つ開いて確かめる。",
+    prompt:"ウェブ検索を使って、大阪府内で法人向けノベルティや販促品を扱う卸・商社を5社調べてください。\n各社について：所在地、主な取扱分野、公式サイトURL、当社（教育・雑貨メーカー）との相性を一言。\n出典が確認できない項目は空欄にしてください。" },
+  quiz:[
+    { q:"検索結果に基づく回答で、最後にやるべきことは？",
+      o:["回答をそのまま資料に貼る","重要な数字は出典を開いて確かめる","もう一度同じ質問をして一致を見る"],
+      a:1, why:"検索は網を広げる道具で、裏取りは人の仕事。数字と固有名詞は特に。" }
+  ],
+  reflect:"答えの速さに慣れるほど、確かめる手間の価値が上がる。"
+},
+{ id:"l08", stage:"ha", title:"記憶と過去の会話", min:10,
+  lede:"Claudeは過去の会話を検索して参照したり、会話から記憶を育てたりできる。便利さと、覚えさせない自由の両方を管理する。",
+  goals:["過去チャットの参照・メモリの設定場所を知っている","記憶を確認・編集できる","記録を残さない会話（シークレット）を使い分けられる"],
+  body:`<p>設定の<b>機能</b>には、過去のチャットを検索して参照する設定と、会話から<b>メモリ</b>を生成する設定がある。有効にすると「前に話したあの件」が通じるようになる。</p>
+<p>メモリの中身は確認・編集できる。覚えていてほしくないことは消し、記録に残したくない相談は<b>シークレットチャット</b>で行う。Projectごとに記憶が分かれるため、業務の混線も起きにくい。</p>`,
+  steps:[
+    ["設定を確認する","設定 → 機能で、過去チャットの参照とメモリの項目を見る。"],
+    ["呼び出してみる","「先週話したカタログ通知の件、続きから」と頼み、過去の会話を参照させる。"],
+    ["記憶を点検する","メモリの内容を開き、古い情報や不要な情報を消す。"],
+    ["残さない会話","一時的な相談はシークレットチャットで始める。"]
+  ],
+  tip:"記憶は便利だが、古い前提が混ざる原因にもなる。季節ごと、異動や担当替えのタイミングで点検するとよい。",
+  drill:{ title:"記憶を棚卸しする", text:"メモリを有効にしている場合に送る。",
+    prompt:"あなたが私について記憶・把握していることを、「仕事」「好み」「進行中の案件」に分けて一覧にしてください。\n古くなっていそうな項目や、推測が混じっている項目には印をつけてください。" },
+  quiz:[
+    { q:"記録に残したくない相談をしたいときは？",
+      o:["相談後にチャットを削除すればよい","シークレットチャットで始める","Projectの中で話す"],
+      a:1, why:"最初から残さない前提で始めるのが確実。" }
+  ],
+  reflect:"覚えることと忘れることは、同じ設計の表と裏。"
+},
+{ id:"l09", stage:"ha", title:"コネクタで外とつなぐ", min:15,
+  lede:"Gmail、カレンダー、Google ドライブ、Canva、Figma。普段のツールをつなぐと、Claudeはコピペを待たずに自分で読みに行ける。",
+  goals:["コネクタを追加・認可できる","つないだツールを会話で使い分けられる","送信や削除など書き込み系の操作に確認を挟める"],
+  body:`<p>設定の<b>コネクタ</b>から、使っているサービスを追加して認可する。以後の会話で「今週のカレンダーから」「ドライブの見積書フォルダから」と頼めば、Claudeが自分で取りに行く。</p>
+<p>読むだけの操作と、送信・作成・削除のような書き込み操作は分けて考える。書き込み系は実行前に確認を求められるので、内容を読んでから許可する。会話ごとに、使うコネクタを入力欄のメニューからオン・オフできる。</p>`,
+  steps:[
+    ["追加する","設定 → コネクタから、Gmail・Google カレンダー・Google ドライブなどを選び、アカウントで認可する。"],
+    ["読ませる","「未読メールのうち、返信が必要なものを3件」と頼む。"],
+    ["組み合わせる","カレンダーとメールを横断させる。「明日の商談相手との過去のやり取りを要約」。"],
+    ["書き込みは確認","下書き作成や予定登録は、提示された内容を読んでから許可する。"]
+  ],
+  tip:"最初は読み取り中心の使い方から始める。慣れてから下書き作成、最後に送信、と段階を踏むと事故がない。",
+  drill:{ title:"朝の予定を自動で整理", text:"カレンダーとGmailのコネクタを有効にしてから送る。",
+    prompt:"今日の Google カレンダーの予定と、昨日から今朝までに届いたメールを確認してください。\n1. 今日の予定を時系列で\n2. 予定に関係するメールがあれば、その要点を予定の下に一行で\n3. 今日中に返信が必要そうなメールを最大3件\n\n朝礼で共有できる短いテキストにまとめてください。送信や登録はしないでください。" },
+  quiz:[
+    { q:"コネクタ経由でメールを送らせるとき、正しい構えは？",
+      o:["毎回自動送信を許可しておく","送信前に提示された宛先と本文を読んでから許可する","コネクタでは送信できないので気にしない"],
+      a:1, why:"書き込み操作は取り消しが効きにくい。確認の一手を省かない。" }
+  ],
+  reflect:"つなぐほど速くなり、つなぐほど責任が増える。"
+},
+
+/* ---------------- 離 ---------------- */
+{ id:"l10", stage:"ri", title:"Skillsで仕事を型にする", min:20,
+  lede:"何度も同じ手順を説明しているなら、それを Skill にする。手順・書式・判断基準をまとめたフォルダを渡しておけば、Claudeは必要な場面で自分で読み込む。",
+  goals:["Skillの構造（SKILL.md）を理解している","自分の定型業務をSkillに書き起こせる","Skillを追加・有効化できる"],
+  body:`<p>Skillは、<code>SKILL.md</code>を中心にしたフォルダ。冒頭に<b>名前</b>と<b>いつ使うか</b>の説明を書き、本文に手順・書式・例を書く。Claudeは説明文を見て「今この仕事だ」と判断したときだけ中身を読むので、たくさん入れても会話が重くならない。</p>
+<p>向いているのは、形式が決まっている繰り返し業務。朝の予定投稿、定型の案内メール、催促文、社内様式のスライドなど。Projectの指示が「部屋の空気」なら、Skillは「手に馴染んだ道具」にあたる。</p>`,
+  code:`---
+name: morning-schedule
+description: 朝礼前に共有する「今日の予定」テキストを作る。
+  「今日の予定」「朝の投稿」と言われたら使う。
+---
+
+# 朝の予定投稿
+
+## 手順
+1. カレンダーの予定を時系列に並べる
+2. 各予定に準備事項を一行ずつ添える
+3. 最後に「今日の目標」を一文で締める
+
+## 書式
+- 絵文字は使わない
+- 全体で200字以内`,
+  steps:[
+    ["繰り返しを見つける","この一か月で三回以上同じ説明をした仕事を書き出す。"],
+    ["Claudeと作る","「この作業をSkillにしたい」と相談し、SKILL.md を書かせる。良い出力例も一緒に入れる。"],
+    ["追加する","設定 → 機能のSkills欄から、フォルダをzipにしてアップロードし、有効にする。"],
+    ["呼ばれるか試す","説明文に書いた言い回しで頼み、Skillが使われるか確認する。使われなければ説明文を直す。"]
+  ],
+  tip:"Skillの肝は本文より冒頭の description。「何をするか」と「どんな言葉で頼まれたら使うか」を両方書く。",
+  drill:{ title:"最初のSkillを作る", text:"自分の定型業務を一つ選び、Claudeと一緒にSkillへ起こす。",
+    prompt:"私が繰り返している次の業務を Skill にしたいです。\n業務：＿＿＿＿＿（例：取引先への入金確認メール）\n\n1. まず、この業務の手順・判断の分かれ目・良い例を知るための質問を5つしてください\n2. 回答をもとに SKILL.md を書いてください（冒頭に name と description、本文に手順・書式・例）\n3. description には、私が実際に使いそうな頼み方を3つ含めてください" },
+  quiz:[
+    { q:"Skillが呼ばれないとき、まず直すべき場所は？",
+      o:["本文の手順","冒頭の description","ファイル名"],
+      a:1, why:"Claudeは description を見て使うかどうかを決める。呼ばれない原因の大半はここにある。" },
+    { q:"Projectの指示とSkillの使い分けとして適切なのは？",
+      o:["口調などの前提はProject、決まった手順の作業はSkill","どちらも同じなので好きなほうでよい","全部Skillに入れるのが最善"],
+      a:0, why:"常に効かせたい前提はProject、特定の作業のときだけ呼び出したい手順はSkill。" }
+  ],
+  reflect:"型は、自由を奪うためではなく、考えなくていいことを減らすためにある。"
+},
+{ id:"l11", stage:"ri", title:"デスクトップ拡張とMCP", min:20,
+  lede:"デスクトップ版だけの力。拡張機能を入れると、Claudeが手元のファイルやアプリ、社内ツールに触れられるようになる。仕組みの名前は MCP（Model Context Protocol）。",
+  goals:["拡張機能をワンクリックで入れられる","MCPの位置づけを説明できる","設定ファイルで手動追加する流れを知っている"],
+  body:`<p>設定の<b>拡張機能</b>から、用意された拡張を選んでインストールできる。ファイル操作、ブラウザ、各種アプリとの連携などがある。中身は<b>MCPサーバー</b>で、Claudeに新しい道具を持たせるための共通規格。</p>
+<p>一覧にないものは、開発者向け設定から <code>claude_desktop_config.json</code> を編集して手動で追加できる。下は、指定したフォルダだけを読み書きさせる例。許可するフォルダは必要最小限にする。</p>`,
+  code:`{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/Users/you/Documents/営業資料"
+      ]
+    }
+  }
+}`,
+  steps:[
+    ["拡張一覧を見る","設定 → 拡張機能で、提供されている拡張を眺める。"],
+    ["一つ入れる","必要なものをインストールし、求められる設定（対象フォルダなど）を入れる。"],
+    ["会話で使う","「営業資料フォルダの見積書を一覧にして」と頼み、ツール使用の許可を確認して進める。"],
+    ["手動追加（任意）","設定 → 開発者 → 設定ファイルを編集で JSON を書き、アプリを再起動する。Node.js が必要な場合がある。"]
+  ],
+  tip:"コネクタはクラウドのサービスに、拡張機能は手元のPCにつなぐもの、と覚えると整理しやすい。",
+  drill:{ title:"フォルダを任せる", text:"ファイル系の拡張を入れ、限定したフォルダだけを許可してから送る。",
+    prompt:"許可したフォルダの中身を確認して、次をしてください。\n1. ファイルを種類別（見積・請求・カタログ・その他）に分類した一覧\n2. ファイル名の付け方がバラバラなものに、統一案（日付_取引先_種別）を提案\n\nまだファイルの移動や名前変更はしないでください。提案だけで止めてください。" },
+  quiz:[
+    { q:"「手元のPCのフォルダ」を扱わせたいときに使うのは？",
+      o:["コネクタ","デスクトップ拡張（MCP）","Projectのナレッジ"],
+      a:1, why:"ローカルに触れるのはデスクトップ拡張。コネクタはクラウド上のサービス向け。" }
+  ],
+  reflect:"手を伸ばせる範囲が、任せられる範囲を決める。だから範囲は自分で引く。"
+},
+{ id:"l12", stage:"ri", title:"クイック入力と音声", min:10,
+  lede:"作業の手を止めずに呼び出せるのがデスクトップ版の真価。ショートカット一つで入力窓を出し、画面を見せ、声で頼む。",
+  goals:["クイック入力を呼び出せる","画面の内容を添えて質問できる","音声入力を使える"],
+  body:`<p><b>クイック入力</b>は、どのアプリを使っていても呼び出せる小さな入力窓。Macでは初期設定で <kbd>Option</kbd> の2回押し（設定 → 一般で変更可）。開いているウィンドウのスクリーンショットを添えて、その場で質問できる。</p>
+<p>音声入力を使えば、歩きながら・資料を見ながらでも頼める。書くより話すほうが文脈を多く渡せることも多い。</p>`,
+  steps:[
+    ["ショートカットを決める","設定 → 一般でクイック入力のショートカットを確認し、手に馴染むものにする。"],
+    ["画面ごと聞く","エラー画面や表計算を開いたまま呼び出し、画面を添えて「これはどういう意味？」と聞く。"],
+    ["声で頼む","音声入力を有効にし、思いついた依頼をそのまま話す。"],
+    ["常駐させる","ログイン時に起動する設定にして、いつでも呼べる状態にする。"]
+  ],
+  tip:"「アプリを開いてから考える」を「考えた瞬間に呼ぶ」に変えると、使用頻度が一段上がる。",
+  drill:{ title:"三日間の手癖づくり", text:"三日間、仕事中に一度はクイック入力で質問する。最終日に下のプロンプトで振り返る。",
+    prompt:"この三日間、クイック入力で次のような質問をしました：\n- ＿＿＿＿\n- ＿＿＿＿\n- ＿＿＿＿\n\nこの使い方の傾向から、私がもっとClaudeに任せられそうな仕事を3つ提案してください。" },
+  quiz:[
+    { q:"クイック入力の一番の利点は？",
+      o:["回答の精度が上がる","作業中のアプリを離れずに、画面を添えて聞ける","無料で使える回数が増える"],
+      a:1, why:"文脈（今見ている画面）ごと、手を止めずに渡せることが価値。" }
+  ],
+  reflect:"道具が身体の延長になるのは、呼ぶまでの距離が消えたとき。"
+},
+{ id:"l13", stage:"ri", title:"CoworkとCodeに任せる", min:20,
+  lede:"会話で一問一答するのではなく、フォルダと目的を渡して作業そのものを任せる。デスクトップ版の Cowork と Code は、Claudeが自分で手順を立てて進めるモード。",
+  goals:["チャット・Cowork・Codeの違いを説明できる","任せる作業の範囲と止めどころを指示できる","途中経過を確認し、軌道修正できる"],
+  body:`<p><b>Cowork</b>は、指定したフォルダやつないだツールを使って、資料作成・整理・調査といった複数ステップの仕事を進めるモード。役割別のプラグインで、必要なスキルやコネクタをまとめて入れることもできる。<b>Code</b>は同じ考え方をソフトウェア開発に向けたもので、リポジトリを読み、コードを書き、テストを回す。</p>
+<p>任せるときの要点は三つ。<b>ゴール</b>（完成の姿）、<b>範囲</b>（触ってよいもの・だめなもの）、<b>止めどころ</b>（どこで確認を求めるか）。これを最初に書くほど、放っておける時間が長くなる。</p>`,
+  table:{ head:["モード","向いている仕事","渡すもの"], rows:[
+    ["チャット","相談、下書き、一問一答","質問と資料"],
+    ["Cowork","資料作成、ファイル整理、調べてまとめる","フォルダ、ツール、ゴール"],
+    ["Code","アプリやスクリプトの開発・修正","リポジトリ、課題、テスト方法"]
+  ]},
+  steps:[
+    ["作業用フォルダを用意","任せる作業に必要なファイルだけを入れたフォルダを作る。"],
+    ["ゴール・範囲・止めどころを書く","下の演習の形で最初の指示を書く。"],
+    ["途中を見る","進行状況を眺め、方向がずれたらその場で指示を足す。"],
+    ["成果物を検品する","出来上がったファイルを開き、数字と固有名詞を確かめる。"]
+  ],
+  tip:"最初は「提案まで」「下書きまで」で止めさせる。任せる範囲は、結果を見て一段ずつ広げる。",
+  drill:{ title:"研修資料を任せる", text:"Coworkで、素材を入れたフォルダを指定してから送る。",
+    prompt:"【ゴール】フォルダ内の資料をもとに、新人向け「生成AIの使い方」研修スライド（10枚程度）を作る\n【範囲】このフォルダ内のファイルのみ使用。元ファイルは変更しない。成果物は output フォルダに保存\n【止めどころ】構成案（各スライドの見出しと要点）を作った時点で一度止まり、私の確認を待つ\n【品質】1枚1メッセージ。専門用語には一行の説明を添える" },
+  quiz:[
+    { q:"作業を任せるとき、最初の指示に必ず入れたいのは？",
+      o:["丁寧な挨拶","ゴール・範囲・止めどころ","使用するモデル名"],
+      a:1, why:"この三つが決まっていれば、Claudeは迷わず進み、危ない所で止まれる。" }
+  ],
+  reflect:"任せるとは、手を放すことではない。どこで手を添えるかを先に決めること。"
+},
+{ id:"l14", stage:"ri", title:"卒業制作：自分の道具立て", min:30,
+  lede:"ここまでの型を組み合わせて、自分の一日に合わせた道具立てを設計する。正解はない。三か月後に描き直す前提で、今の最善を置く。",
+  goals:["自分の業務を、チャット・Project・Skill・コネクタ・拡張・Coworkに割り振れる","一つの業務を端から端までClaudeと回せる","見直しの時期を決めている"],
+  body:`<p>一日の仕事を書き出し、それぞれを「どの道具で」「どこまで任せるか」で割り振る。全部を任せる必要はない。考えることが価値の仕事は手元に残し、形の決まった仕事から手放していく。</p>
+<p>設計できたら、一つの業務を実際に端から端まで回してみる。うまくいかなかった箇所が、次に作るSkillや、書き直すProject指示の候補になる。</p>`,
+  steps:[
+    ["棚卸し","一週間の仕事を思い出せる限り書き出す。"],
+    ["割り振り","下のプロンプトでClaudeと一緒に道具を割り当てる。"],
+    ["一本通す","最も効果が大きい業務を一つ選び、実際に最後まで回す。"],
+    ["見直し日を決める","三か月後の日付をカレンダーに入れ、道具立てを描き直す。"]
+  ],
+  tip:"完成させようとしないこと。未完成のまま回し、ザラつきを感じた箇所から削り直す。",
+  drill:{ title:"道具立ての設計図", text:"棚卸しした業務を貼り付けて送る。出てきた表をArtifactとして保存しておく。",
+    prompt:"私の一週間の業務は次のとおりです：\n＿＿＿＿（箇条書きで貼り付け）\n\n各業務を次の観点で表にしてください：\n- 使う道具（チャット／Project／Skill／コネクタ／デスクトップ拡張／Cowork／人がやる）\n- 任せる範囲（下調べまで／下書きまで／実行まで）\n- 最初の一歩（今日できること）\n\n最後に、効果が大きい順に3つ選び、理由を一行ずつ添えてください。表はArtifactにしてください。" },
+  quiz:[
+    { q:"道具立ての設計で、最初に手放すべき仕事は？",
+      o:["判断が価値の中心にある仕事","形が決まっていて繰り返す仕事","一番好きな仕事"],
+      a:1, why:"定型の仕事を型に封じるほど、考える仕事に時間が戻ってくる。" }
+  ],
+  reflect:"守って型を知り、破って型を広げ、離れて型を忘れる。忘れたころ、型は自分の手になっている。"
+}
+];
+
+/* 用途別の早引き */
+const LOOKUP = [
+  ["毎回同じ前提を説明している","Projects","l05"],
+  ["同じ手順の作業を何度も頼んでいる","Skills","l10"],
+  ["最新の情報や数字が要る","ウェブ検索 / Research","l07"],
+  ["メールや予定を見ながら頼みたい","コネクタ","l09"],
+  ["手元のPCのファイルを扱わせたい","デスクトップ拡張（MCP）","l11"],
+  ["作業中にさっと聞きたい","クイック入力","l12"],
+  ["資料作成を丸ごと任せたい","Cowork","l13"],
+  ["コードを書かせて動かしたい","Code","l13"],
+  ["配れるファイル（Excel・スライド）がほしい","Artifacts / ファイル作成","l04"],
+  ["返答の書きぶりを変えたい","スタイル","l06"],
+  ["込み入った判断を任せたい","拡張思考","l06"],
+  ["前の会話の続きをしたい","過去チャット参照 / メモリ","l08"],
+  ["記録を残さず相談したい","シークレットチャット","l08"],
+  ["長い資料から要点を抜きたい","ファイル添付＋目的の明示","l03"],
+  ["返答がどうもずれる","頼み方の四要素・編集と再生成","l02"]
+];
+
+/* =========================================================
+   状態（この閲覧者のブラウザにだけ保存）
+   ========================================================= */
+const KEY = "claude-dojo-v1";
+const store = {
+  load(){ try{ return JSON.parse(localStorage.getItem(KEY)) || {} }catch(e){ return {} } },
+  save(s){ try{ localStorage.setItem(KEY, JSON.stringify(s)) }catch(e){} }
+};
+const state = Object.assign({ done:{}, quiz:{}, theme:"system" }, store.load());
+function persist(){ store.save(state) }
+
+/* =========================================================
+   helpers
+   ========================================================= */
+const $ = (s,el=document)=>el.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const stageOf = id => STAGES.find(s=>s.id===id);
+const lessonIndex = id => LESSONS.findIndex(l=>l.id===id);
+const doneCount = (stageId) => LESSONS.filter(l=>(!stageId||l.stage===stageId) && state.done[l.id]).length;
+const totalOf = (stageId) => LESSONS.filter(l=>!stageId||l.stage===stageId).length;
+const nextLesson = () => LESSONS.find(l=>!state.done[l.id]) || null;
+const pad = n => String(n).padStart(2,"0");
+
+function ring(done,total,size=22){
+  const r=(size-4)/2, c=2*Math.PI*r, p=total?done/total:0;
+  return `<svg class="ring" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" aria-hidden="true">
+    <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="var(--rule)" stroke-width="2.5"/>
+    <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="var(--oribe)" stroke-width="2.5"
+      stroke-dasharray="${c}" stroke-dashoffset="${c*(1-p)}" stroke-linecap="round" transform="rotate(-90 ${size/2} ${size/2})"/>
+  </svg>`;
+}
+
+let toastTimer;
+function toast(msg){
+  const t=$("#toast"); t.textContent=msg; t.classList.add("show");
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove("show"),1800);
+}
+
+/* =========================================================
+   rail
+   ========================================================= */
+function renderRail(route){
+  const all = doneCount(), total = totalOf();
+  const pct = Math.round(all/total*100);
+  let html = `
+    <button class="brand" type="button" data-go="home"><b>Claude道場</b><span>Desktop</span></button>
+    <div class="meter">
+      <div class="meter-row"><span>修了</span><strong>${all} / ${total}　${pct}%</strong></div>
+      <div class="bar"><i style="width:${pct}%"></i></div>
+    </div>
+    <div class="navlinks">
+      <button type="button" data-go="home" aria-current="${route==="home"}">全体図</button>
+      <button type="button" data-go="cheat" aria-current="${route==="cheat"}">早引き</button>
+    </div>`;
+  for(const s of STAGES){
+    html += `<div class="stage-group">
+      <div class="stage-head"><span class="stage-kanji">${s.kanji}</span>
+        <span class="stage-meta"><b>${s.name}</b><small>${doneCount(s.id)} / ${totalOf(s.id)} 修了</small></span></div>`;
+    for(const l of LESSONS.filter(l=>l.stage===s.id)){
+      const n = lessonIndex(l.id)+1;
+      html += `<button type="button" class="lesson-link ${state.done[l.id]?"done":""}" data-go="${l.id}" aria-current="${route===l.id}">
+        <span class="no">${pad(n)}</span><span>${esc(l.title)}</span><span class="dot" aria-label="${state.done[l.id]?"修了":"未修了"}"></span></button>`;
+    }
+    html += `</div>`;
+  }
+  const th = state.theme;
+  html += `<div class="theme-toggle"><span>表示</span>
+    <button type="button" data-theme-set="system" aria-pressed="${th==="system"}">自動</button>
+    <button type="button" data-theme-set="light" aria-pressed="${th==="light"}">明</button>
+    <button type="button" data-theme-set="dark" aria-pressed="${th==="dark"}">暗</button></div>`;
+  $("#rail").innerHTML = html;
+}
+
+/* =========================================================
+   views
+   ========================================================= */
+function viewHome(){
+  const nx = nextLesson();
+  const all = doneCount();
+  const cta = nx
+    ? `<button class="btn" type="button" data-go="${nx.id}">${all? "続きから" : "はじめる"}　${pad(lessonIndex(nx.id)+1)} ${esc(nx.title)}</button>`
+    : `<button class="btn" type="button" data-go="l14">全課程を修了。卒業制作を見直す</button>`;
+  const totalMin = LESSONS.reduce((a,l)=>a+l.min,0);
+  return `<div class="page fade">
+    <section class="hero">
+      <div class="eyebrow">Claude デスクトップアプリ 習熟カリキュラム</div>
+      <div class="hero-kanji" aria-label="守破離"><span>守</span><span>破</span><span>離</span></div>
+      <h1>型を守り、型を破り、<br>型から離れる。</h1>
+      <p class="lede">全${LESSONS.length}課・およそ${Math.round(totalMin/60*10)/10}時間。画面の地図から始めて、Projects・Skills・MCP・Cowork まで、茶の湯や武道の稽古と同じ順序で身につける。各課に実習プロンプトと理解チェックがつく。</p>
+      <div class="hero-actions">${cta}<button class="btn ghost" type="button" data-go="cheat">用途から引く</button></div>
+      <p class="hint">進み具合はこのブラウザにだけ保存される。</p>
+    </section>
+
+    <section class="stages" aria-label="三段階の課程">
+      ${STAGES.map(s=>{
+        const ls = LESSONS.filter(l=>l.stage===s.id);
+        return `<article class="stage-card">
+          <header><span class="k">${s.kanji}</span><div><h3>${s.name}</h3><div class="eyebrow">${s.sub}</div></div>${ring(doneCount(s.id),ls.length,30)}</header>
+          <p>${s.desc}</p>
+          <ol>${ls.map(l=>`<li><button type="button" data-go="${l.id}" class="${state.done[l.id]?"done":""}">
+            <span class="no">${pad(lessonIndex(l.id)+1)}</span><span>${esc(l.title)}</span><span class="dot" style="margin-left:auto" aria-hidden="true"></span></button></li>`).join("")}</ol>
+        </article>`;
+      }).join("")}
+    </section>
+
+    <section class="section">
+      <h2>稽古の作法 <small>HOW TO LEARN</small></h2>
+      <dl class="principle">
+        <dt>読む</dt><dd>各課の解説は5分で読める分量。細部より「なぜその機能があるか」を掴む。</dd>
+        <dt>打つ</dt><dd>実習プロンプトをコピーして、実際のアプリに送る。読むだけでは型は身につかない。</dd>
+        <dt>確かめる</dt><dd>理解チェックで要点を一問だけ確認し、「修了」を押して次へ。</dd>
+        <dt>戻る</dt><dd>迷ったら「早引き」から、やりたいことに対応する課へ戻る。</dd>
+      </dl>
+    </section>
+  </div>`;
+}
+
+function viewLesson(l){
+  const i = lessonIndex(l.id), s = stageOf(l.stage);
+  const prev = LESSONS[i-1], next = LESSONS[i+1];
+  const done = !!state.done[l.id];
+  const table = l.table ? `<div class="compare"><table>
+      <thead><tr>${l.table.head.map(h=>`<th>${esc(h)}</th>`).join("")}</tr></thead>
+      <tbody>${l.table.rows.map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>` : "";
+  const code = l.code ? `<div class="prompt-wrap"><div class="prompt-bar"><span>EXAMPLE</span><button class="copy" type="button" data-copy="code">コピー</button></div><pre class="prompt" data-src="code">${esc(l.code)}</pre></div>` : "";
+  const quiz = l.quiz.map((q,qi)=>{
+    const key = l.id+"-"+qi, ans = state.quiz[key];
+    const answered = ans !== undefined;
+    return `<div class="q" data-q="${qi}">
+      <p class="qt">問${qi+1}　${esc(q.q)}</p>
+      <div class="opts">${q.o.map((o,oi)=>{
+        let cls = "";
+        if(answered){ if(oi===q.a) cls="right"; else if(oi===ans) cls="wrong"; }
+        return `<button type="button" class="opt ${cls}" data-opt="${oi}" ${answered?"disabled":""}><span class="mk">${"ABC"[oi]}</span><span>${esc(o)}</span></button>`;
+      }).join("")}</div>
+      ${answered?`<p class="feedback">${ans===q.a?'<b class="r">正解。</b>':'<b class="w">惜しい。</b>'}${esc(q.why)}</p>`:""}
+    </div>`;
+  }).join("");
+
+  return `<div class="page fade">
+    <header class="lesson-head">
+      <div class="chips"><span class="chip stage">${s.kanji}　${s.name}</span><span class="chip">第${i+1}課 / 全${LESSONS.length}課</span><span class="chip">約${l.min}分</span>${done?'<span class="chip done">修了</span>':""}</div>
+      <h1>${esc(l.title)}</h1>
+      <p class="lede">${esc(l.lede)}</p>
+    </header>
+
+    <div class="goal"><span class="lbl">到達点</span><ul>${l.goals.map(g=>`<li>${esc(g)}</li>`).join("")}</ul></div>
+
+    <section class="section">
+      <h2>解説 <small>CONCEPT</small></h2>
+      <div class="prose">${l.body}</div>
+      ${table}
+      ${code}
+    </section>
+
+    <section class="section">
+      <h2>手順 <small>STEPS</small></h2>
+      <ol class="steps">${l.steps.map(([t,d])=>`<li><div><b>${esc(t)}</b><br><span>${esc(d)}</span></div></li>`).join("")}</ol>
+      <p class="tip"><b>要点　</b>${esc(l.tip)}</p>
+    </section>
+
+    <section class="drill" aria-label="実習">
+      <div class="drill-head"><b>実習：${esc(l.drill.title)}</b><span class="eyebrow">Claude アプリで試す</span></div>
+      <div class="drill-body">
+        <p>${esc(l.drill.text)}</p>
+        <div class="prompt-wrap">
+          <div class="prompt-bar"><span>PROMPT</span><button class="copy" type="button" data-copy="drill">コピー</button></div>
+          <pre class="prompt" data-src="drill">${esc(l.drill.prompt)}</pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="section quiz" aria-label="理解チェック">
+      <h2>理解チェック <small>CHECK</small></h2>
+      ${quiz}
+    </section>
+
+    <p class="reflect"><small>ひとこと</small>${esc(l.reflect)}</p>
+
+    <div class="finish">
+      <button class="btn ${done?"ghost":""}" type="button" id="doneBtn">${done?"修了を取り消す":"この課を修了する"}</button>
+      <div class="pager">
+        ${prev?`<button class="btn ghost small" type="button" data-go="${prev.id}">← ${esc(prev.title)}</button>`:""}
+        ${next?`<button class="btn ghost small" type="button" data-go="${next.id}">${esc(next.title)} →</button>`:`<button class="btn ghost small" type="button" data-go="home">全体図へ</button>`}
+      </div>
+    </div>
+    <p class="note">画面上のメニュー名はアプリの更新で変わることがある。見当たらない場合は設定画面内を探すか、Claudeに現在の場所を尋ねる。</p>
+  </div>`;
+}
+
+function viewCheat(){
+  return `<div class="page fade">
+    <header class="lesson-head">
+      <div class="eyebrow">早引き</div>
+      <h1>やりたいことから引く</h1>
+      <p class="lede">「こうしたい」から、使う機能と対応する課へ飛ぶ。迷ったときの入口。</p>
+    </header>
+    <input class="search" id="lookupQ" type="search" placeholder="例：メール、ファイル、繰り返し" aria-label="用途を検索">
+    <div class="lookup" id="lookupList"></div>
+  </div>`;
+}
+function renderLookup(q=""){
+  const qq = q.trim();
+  const rows = LOOKUP.filter(r=>!qq || r[0].includes(qq) || r[1].toLowerCase().includes(qq.toLowerCase()));
+  $("#lookupList").innerHTML = rows.length ? rows.map(([want,use,id])=>{
+    const l = LESSONS.find(x=>x.id===id);
+    return `<div class="lookup-row"><span>${esc(want)}</span><span class="use">${esc(use)}</span>
+      <button class="btn ghost small" type="button" data-go="${id}">${pad(lessonIndex(id)+1)} ${esc(l.title)}</button></div>`;
+  }).join("") : `<p class="hint" style="padding:16px 0">該当なし。別の言葉で探すか、全体図から選ぶ。</p>`;
+}
+
+/* =========================================================
+   routing
+   ========================================================= */
+let current = "home";
+function go(route, focus=true){
+  if(route!=="home" && route!=="cheat" && !LESSONS.some(l=>l.id===route)) route="home";
+  current = route;
+  try{ history.replaceState(null,"","#"+route) }catch(e){}
+  const main = $("#main");
+  if(route==="home") main.innerHTML = viewHome();
+  else if(route==="cheat"){ main.innerHTML = viewCheat(); renderLookup(); }
+  else main.innerHTML = viewLesson(LESSONS.find(l=>l.id===route));
+  renderRail(route);
+  closeRail();
+  if(focus){ window.scrollTo({top:0}); main.focus({preventScroll:true}); }
+}
+
+/* =========================================================
+   events
+   ========================================================= */
+document.addEventListener("click", e=>{
+  const g = e.target.closest("[data-go]");
+  if(g){ go(g.dataset.go); return; }
+
+  const th = e.target.closest("[data-theme-set]");
+  if(th){ state.theme = th.dataset.themeSet; applyTheme(); persist(); renderRail(current); return; }
+
+  const cp = e.target.closest("[data-copy]");
+  if(cp){
+    const pre = $(`pre[data-src="${cp.dataset.copy}"]`);
+    const text = pre.textContent;
+    const ok = ()=>{ cp.textContent="コピー済み"; cp.classList.add("ok"); setTimeout(()=>{cp.textContent="コピー";cp.classList.remove("ok")},1600); };
+    const fallback = ()=>{ const r=document.createRange(); r.selectNodeContents(pre); const s=getSelection(); s.removeAllRanges(); s.addRange(r); toast("選択しました。コピーしてください"); };
+    try{ navigator.clipboard.writeText(text).then(ok, fallback) }catch(err){ fallback() }
+    return;
+  }
+
+  const opt = e.target.closest(".opt");
+  if(opt && !opt.disabled){
+    const qEl = opt.closest(".q"), qi = +qEl.dataset.q;
+    const l = LESSONS.find(x=>x.id===current);
+    state.quiz[l.id+"-"+qi] = +opt.dataset.opt; persist();
+    const y = window.scrollY;
+    go(current,false); window.scrollTo({top:y});
+    return;
+  }
+
+  if(e.target.closest("#doneBtn")){
+    const l = LESSONS.find(x=>x.id===current);
+    if(state.done[l.id]){ delete state.done[l.id]; persist(); const y=scrollY; go(current,false); scrollTo({top:y}); toast("修了を取り消しました"); }
+    else{
+      state.done[l.id] = Date.now(); persist();
+      const i = lessonIndex(l.id), nx = LESSONS[i+1];
+      const stageDone = doneCount(l.stage)===totalOf(l.stage);
+      toast(stageDone ? `「${stageOf(l.stage).kanji}」の段を修了` : "修了しました");
+      go(nx ? nx.id : "home");
+    }
+    return;
+  }
+
+  if(e.target.closest("#menuBtn")){ openRail(); return; }
+  if(e.target.closest(".scrim")){ closeRail(); return; }
+});
+document.addEventListener("input", e=>{ if(e.target.id==="lookupQ") renderLookup(e.target.value) });
+document.addEventListener("keydown", e=>{ if(e.key==="Escape") closeRail() });
+
+function openRail(){
+  $("#rail").classList.add("open"); $("#menuBtn").setAttribute("aria-expanded","true");
+  if(!$(".scrim")){ const s=document.createElement("div"); s.className="scrim"; document.body.appendChild(s); }
+}
+function closeRail(){
+  $("#rail").classList.remove("open"); const b=$("#menuBtn"); if(b) b.setAttribute("aria-expanded","false");
+  const s=$(".scrim"); if(s) s.remove();
+}
+const hostTheme = document.documentElement.getAttribute("data-theme");
+function applyTheme(){
+  const r=document.documentElement;
+  if(state.theme==="system"){ if(hostTheme) r.setAttribute("data-theme",hostTheme); else r.removeAttribute("data-theme"); }
+  else r.setAttribute("data-theme",state.theme);
+}
+
+applyTheme();
+go((location.hash||"").slice(1) || "home", false);
+window.addEventListener("hashchange",()=>{ const h=location.hash.slice(1); if(h && h!==current) go(h) });
+</script>
