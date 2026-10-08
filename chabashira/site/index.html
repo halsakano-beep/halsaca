@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{業種}}入札の早耳 | 茶柱</title>
+<meta name="description" content="{{地域}}の{{業種}}の入札案件を、毎週月曜にAIで要約してメールでお届けします。">
+<style>
+  :root { --ink:#222; --quiet:#666; --line:#e2ddd3; --bg:#fbfaf7; --accent:#6b7f3a; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink:#eee; --quiet:#aaa; --line:#3a3a36; --bg:#1b1b19; --accent:#a9bf6a; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+         font-family:"Hiragino Sans","Noto Sans JP",sans-serif; line-height:1.8; }
+  main { max-width:640px; margin:auto; padding:48px 16px; }
+  h1 { font-size:26px; line-height:1.4; margin:0 0 8px; }
+  .lead { color:var(--quiet); margin:0 0 32px; }
+  h2 { font-size:18px; border-top:1px solid var(--line); padding-top:24px; margin-top:32px; }
+  ul { padding-left:1.2em; }
+  .cta { display:block; text-align:center; background:var(--accent); color:#fff;
+         padding:14px; border-radius:8px; text-decoration:none; font-weight:600; margin:24px 0; }
+  .sample { border:1px solid var(--line); border-radius:8px; padding:16px; font-size:14px; }
+  footer { color:var(--quiet); font-size:12px; border-top:1px solid var(--line); margin-top:48px; padding-top:16px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>{{地域}}の{{業種}}の入札、<br>毎週月曜に一通で。</h1>
+  <p class="lead">官公庁・自治体の入札公告から{{業種}}の案件だけを集め、AIが要点を要約してお届けします。いまは無料です。</p>
+
+  <a class="cta" href="{{登録フォームのURL}}">無料で受け取る</a>
+
+  <h2>届くもの</h2>
+  <ul>
+    <li>{{地域}}で先週公示された{{業種}}の案件の一覧</li>
+    <li>1件ごとに「仕事の内容・参加資格・必要な実績・締切」の要約</li>
+    <li>公告の原文へのリンク</li>
+  </ul>
+
+  <h2>見本</h2>
+  <div class="sample">
+    <b>市役所本庁舎日常清掃業務委託</b><br>
+    発注：大阪府○○市<br>
+    仕事：本庁舎の日常清掃（1年間）<br>
+    資格：○○市の入札参加資格（清掃）<br>
+    締切：10月20日 17時<br>
+    <span style="color:var(--quiet)">※見本です。実在の案件ではありません</span>
+  </div>
+
+  <h2>よくある質問</h2>
+  <p><b>本当に無料ですか？</b><br>はい。今後、詳しい要約や締切のお知らせを含む有料版（月額）を用意する予定ですが、無料版も続けます。</p>
+  <p><b>やめたいときは？</b><br>毎回のメールの末尾にある配信停止のリンクから、いつでも止められます。</p>
+  <p><b>要約は正確ですか？</b><br>AIによる要約のため、誤りを含む場合があります。応札の判断は必ず原文でご確認ください。</p>
+
+  <a class="cta" href="{{登録フォームのURL}}">無料で受け取る</a>
+
+  <footer>
+    運営：茶柱（代表 坂野陽貴）　{{住所}}　{{メールアドレス}}<br>
+    入札情報の出典：<a href="https://www.kkj.go.jp/">官公需情報ポータルサイト（中小企業庁）</a>
+  </footer>
+</main>
+</body>
+</html>
