@@ -58,6 +58,11 @@ CASES = [
     ("Box2.0・Linux2.6 → pass", [user("x"), tool("Write", file_path="a.md", content="Box2.0、Linux2.6")], False, False),
     ("全角単位・数え方の単位・外貨 → block", [user("x"), tool("Write", file_path="a.md", content="1ｍ、30冊、5袋、USD 100")], False, True),
     ("× の掛け算（単位なし）・@単価 → block", [user("x"), tool("Write", file_path="a.md", content="1200×30=36000、@1200")], False, True),
+    ("改行・タブ直後の数字 → block", [user("x"), tool("Write", file_path="a.md", content="掛率\n0.8")], False, True),
+    ("改行直後の数字＋空白＋単位 → block", [user("x"), tool("mcp__Gmail__create_draft", subject="件名", body="単価\n1200 円")], False, True),
+    ("500円分・30個目 → block", [user("x"), tool("Write", file_path="a.md", content="500円分のクーポン")], False, True),
+    ("第2部・部屋・口座・3ヶ月 → pass", [user("x"), tool("Write", file_path="a.md", content="第2部の資料、2部屋、1口座、3ヶ月後、1部門")], False, False),
+    ("pkg@18.3.1・user@1234 → pass", [user("x"), tool("Write", file_path="a.md", content="npm i pkg@18.3.1、user@1234.example")], False, False),
     # --- 検知漏れを塞ぐ ---
     ("単位なしの TSV を Write → block", [user("x"), tool("Write", file_path="見積.tsv", content="鉛筆\t1200\t30\t36000")], False, True),
     ("外部CSVからExcel生成（コマンドに数字なし）→ block", [user("x"), tool("Bash", command="python -c \"import pandas as pd; pd.read_csv('in.csv').to_excel('見積.xlsx')\"")], False, True),

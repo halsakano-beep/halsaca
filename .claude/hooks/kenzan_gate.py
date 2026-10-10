@@ -12,11 +12,11 @@ SHEET_WRITES = re.compile(r"(openpyxl|xlsxwriter|to_excel|to_csv|>\s*\S+\.(csv|t
 SHEET_FILE = re.compile(r"\.(csv|tsv)$", re.I)
 # 単位は大文字小文字を区別し、直後に英字が続けば単位と見なさない（python3 make, 5min, 5G回線は対象外）。
 # 英字の直後の数字（W100mm, t3mm）は空白を挟まず単位が付くときだけ数える（user1 m は対象外）。
-UNITS = (r"(円|%|％|個|本|枚|件|名|人|台|箱|冊|部|点|袋|パック|缶|巻|足|着|組|口|梱|包|ヶ|箇|ケース|ダース|セット|式|ロット"
+UNITS = (r"(円|%|％|個|本|枚|件|名|人|台|箱|冊|部(?!屋|門|署|分)|点|袋|パック|缶|巻|足|着|組|口(?!座|目)|梱|包|ヶ(?!月|所)|箇|ケース|ダース|セット|式|ロット"
          r"|千|万|億|倍|掛|割|ドル|ｍｍ|ｃｍ|ｋｇ|ｍ|ｇ|Ｌ|ℓ|ｐｃｓ|ＰＣＳ|(kg|g|cm|mm|m|ml|mL|L|pcs|PCS|JPY|USD|yen)(?![A-Za-z]))")
 NUM = re.compile(
-    r"[¥￥$€]\s*\d|(JPY|USD)\s*\d|[@＠]\s*\d{2,}"
-    r"|(?<![A-Za-z_\d])\d[\d,，]*(\.\d+)?\s*" + UNITS +
+    r"[¥￥$€]\s*\d|(JPY|USD)\s*\d|(?<![\w/.])[@＠]\s*\d{2,}"
+    r"|(?<![A-Za-z_\d第])\d[\d,，]*(\.\d+)?\s*" + UNITS +
     r"|(?<=[A-Za-z])\d[\d,，]*(\.\d+)?" + UNITS +
     r"|(?<![\d,，])\d{1,3}([,，]\d{3})+(?![,，]?\d)"
     r"|(?:(?<=[×*])|(?<=(?<![A-Za-z])x)|(?<![A-Za-z_\d.]))\d+\.\d+(?!\.?\d)"
@@ -28,6 +28,15 @@ SELF_DIR = re.compile(r"(^|[\\/])\.claude[\\/]")  # Claude Code 自身の設定�
 
 def nums(s):
     return [m.group(0) for m in DIGITS.finditer(s or "")]
+
+
+def text_of(v):
+    """入力の文字列値だけを連結する（json.dumps だと改行が \\n になり、直後の数字が英字の後ろに見える）"""
+    if isinstance(v, dict):
+        return "\n".join(text_of(x) for x in v.values())
+    if isinstance(v, list):
+        return "\n".join(text_of(x) for x in v)
+    return v if isinstance(v, str) else str(v)
 
 
 def touches(name, inp):
@@ -45,7 +54,7 @@ def touches(name, inp):
     if WRITE_TOOLS.match(name):
         if SHEET_FILE.search(inp.get("file_path") or "") and re.search(r"\d", inp.get("content") or ""):
             return True
-        return bool(NUM.search(json.dumps(inp, ensure_ascii=False)))
+        return bool(NUM.search(text_of(inp)))
     return False
 
 
