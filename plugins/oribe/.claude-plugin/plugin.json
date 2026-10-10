@@ -1,0 +1,1 @@
+{ "name": "oribe", "version": "0.1.1", "author": { "name": "Hal Sakano" }, "description": "織部モード：整った案の横に、あえて歪めた案をひとつ添えさせる", "types": "./types/index.d.ts" }
