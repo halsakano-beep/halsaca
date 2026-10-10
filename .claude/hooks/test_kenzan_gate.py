@@ -34,6 +34,10 @@ CASES = [
     ("openpyxl で数字 → block", [user("x"), tool("Bash", command="python3 -c \"import openpyxl; ws['B2']=1200; ws['C2']='=B2*30'\"")], False, True),
     ("読むだけの Bash → pass", [user("x"), tool("Bash", command="cat 見積.md | grep 1,200円")], False, False),
     ("Gmail 下書き → block", [user("x"), tool("mcp__Gmail__create_draft", subject="お見積", body="合計 36,000円（税別）")], False, True),
+    (".claude/ への Write → pass", [user("x"), tool("Write", file_path="/p/.claude/hooks/a.py", content="1,200円")], False, False),
+    (".claude/ への Edit（Windows パス）→ pass", [user("x"), tool("Edit", file_path=r"C:\\Users\\h\\.claude\\b.py", old_string="1,000円", new_string="2,000円")], False, False),
+    (".claude/ へのヒアドキュメント → pass", [user("x"), tool("Bash", command="cat > /p/.claude/settings.json <<'EOF'\n{\"a\": \"1,200円\"}\nEOF")], False, False),
+    (".claude/ と見積の両方に書く Bash → block", [user("x"), tool("Bash", command="cat > .claude/x.json <<'EOF'\n{}\nEOF\necho '1,200円' > 見積.md")], False, True),
 ]
 
 fail = 0
@@ -42,5 +46,10 @@ for title, rows, active, want in CASES:
     ok = (got is not None and got.get("decision") == "block") == want
     fail += not ok
     print(("OK  " if ok else "NG  ") + title)
-print(f"\n{len(CASES) - fail}/{len(CASES)} passed")
+# 差し戻し理由に Bash コマンドの先頭が出ること
+got = run([user("x"), tool("Bash", command="echo '単価 1,200円' > 見積.md")])
+ok = bool(got) and "echo '単価 1,200円' > 見積.md" in got["reason"]
+fail += not ok
+print(("OK  " if ok else "NG  ") + "Bash の差し戻し理由にコマンドの先頭を表示")
+print(f"\n{len(CASES) + 1 - fail}/{len(CASES) + 1} passed")
 sys.exit(1 if fail else 0)

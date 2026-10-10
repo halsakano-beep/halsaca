@@ -9,6 +9,7 @@ SHELL_TOOLS = re.compile(r"^(Bash|PowerShell|mcp__.*device_bash)$")
 SHELL_WRITES = re.compile(r"(openpyxl|xlsxwriter|python-pptx|from pptx|pptxgenjs|python-docx|from docx|reportlab|to_excel|to_csv|sed -i|>\s*\S+\.(csv|tsv|json|md|txt|html))")
 NUM = re.compile(r"[¥￥$]\s*\d|\d[\d,]*(\.\d+)?\s*(円|%|％|個|本|枚|件|名|人|台|箱|セット|式|ロット|kg|g|cm|mm|m|千|万|億|倍|掛|割)|\d{1,3}(,\d{3})+|\d+\.\d+|=\s*(SUM|ROUND|IF|VLOOKUP|XLOOKUP|[A-Z]+\d+\s*[*+\-/])")
 DIGITS = re.compile(r"\d[\d,]*(\.\d+)?")
+SELF_DIR = re.compile(r"(^|[\\/])\.claude[\\/]")  # Claude Code 自身の設定・フックは対象外
 
 
 def nums(s):
@@ -16,6 +17,8 @@ def nums(s):
 
 
 def touches(name, inp):
+    if SELF_DIR.search(inp.get("file_path") or inp.get("notebook_path") or ""):
+        return False
     if name in ("Edit", "MultiEdit"):
         edits = inp.get("edits") or [inp]
         return any(nums(x.get("old_string")) != nums(x.get("new_string"))
@@ -23,7 +26,8 @@ def touches(name, inp):
                    for x in edits)
     if SHELL_TOOLS.match(name):
         cmd = inp.get("command", "")
-        return bool(SHELL_WRITES.search(cmd) and NUM.search(cmd))
+        writes = [m.group(0) for m in SHELL_WRITES.finditer(cmd) if not SELF_DIR.search(m.group(0))]
+        return bool(writes and NUM.search(cmd))
     if WRITE_TOOLS.match(name):
         return bool(NUM.search(json.dumps(inp, ensure_ascii=False)))
     return False
@@ -61,7 +65,9 @@ def main():
             if name in ("Agent", "Task") and "検算" in (inp.get("description", "") + inp.get("prompt", "")):
                 touched, verified = [], True
             elif touches(name, inp):
-                label = inp.get("file_path") or inp.get("notebook_path") or inp.get("subject") or name
+                cmd = " ".join((inp.get("command") or "").split())
+                label = (inp.get("file_path") or inp.get("notebook_path") or inp.get("subject")
+                         or (f"{name}: {cmd[:40]}{'…' if len(cmd) > 40 else ''}" if cmd else name))
                 if label not in touched:
                     touched.append(label)
     if not touched:
