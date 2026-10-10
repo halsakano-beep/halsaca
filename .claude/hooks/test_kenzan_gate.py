@@ -34,6 +34,20 @@ CASES = [
     ("openpyxl で数字 → block", [user("x"), tool("Bash", command="python3 -c \"import openpyxl; ws['B2']=1200; ws['C2']='=B2*30'\"")], False, True),
     ("読むだけの Bash → pass", [user("x"), tool("Bash", command="cat 見積.md | grep 1,200円")], False, False),
     ("Gmail 下書き → block", [user("x"), tool("mcp__Gmail__create_draft", subject="お見積", body="合計 36,000円（税別）")], False, True),
+    # --- 誤検知を減らす ---
+    ("python3 の「3 m」を単位と誤読しない → pass", [user("x"), tool("Bash", command="python3 make_quote.py > out.md")], False, False),
+    ("バージョン番号は数字扱いしない → pass", [user("x"), tool("Write", file_path="package.json", content='{"version": "2.1.296"}')], False, False),
+    ("IP アドレス → pass", [user("x"), tool("Write", file_path="hosts.txt", content="server 192.168.0.1")], False, False),
+    ("5min・4 groups は単位にしない → pass", [user("x"), tool("Write", file_path="memo.md", content="タイムアウト 5min、4 groups")], False, False),
+    ("リダイレクト先 .jsonl は .json と見なさない → pass", [user("x"), tool("Bash", command="echo '1,200円' > log.jsonl")], False, False),
+    # --- 拾うべきものは残す ---
+    ("単位 mm・kg → block", [user("x"), tool("Write", file_path="仕様.md", content="幅 100mm、重さ 2kg")], False, True),
+    ("小数と掛率 → block", [user("x"), tool("Write", file_path="条件.md", content="掛率 0.8、粗利 12.5")], False, True),
+    ("漢字の直後の数字 → block", [user("x"), tool("Write", file_path="見積.md", content="単価1200円")], False, True),
+    # --- 検知漏れを塞ぐ ---
+    ("単位なしの TSV を Write → block", [user("x"), tool("Write", file_path="見積.tsv", content="鉛筆\t1200\t30\t36000")], False, True),
+    ("外部CSVからExcel生成（コマンドに数字なし）→ block", [user("x"), tool("Bash", command="python -c \"import pandas as pd; pd.read_csv('in.csv').to_excel('見積.xlsx')\"")], False, True),
+    ("ヒアドキュメントで単位なし CSV → block", [user("x"), tool("Bash", command="cat > 見積.csv <<'EOF'\n鉛筆,1200,30,36000\nEOF")], False, True),
     (".claude/ への Write → pass", [user("x"), tool("Write", file_path="/p/.claude/hooks/a.py", content="1,200円")], False, False),
     (".claude/ への Edit（Windows パス）→ pass", [user("x"), tool("Edit", file_path=r"C:\\Users\\h\\.claude\\b.py", old_string="1,000円", new_string="2,000円")], False, False),
     (".claude/ へのヒアドキュメント → pass", [user("x"), tool("Bash", command="cat > /p/.claude/settings.json <<'EOF'\n{\"a\": \"1,200円\"}\nEOF")], False, False),
