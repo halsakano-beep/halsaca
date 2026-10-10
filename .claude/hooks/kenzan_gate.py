@@ -15,7 +15,7 @@ SHEET_FILE = re.compile(r"\.(csv|tsv)$", re.I)
 UNITS = (r"(円|%|％|個|本|枚|件|名|人|台|箱|冊|部(?!屋|門|署|分)|点|袋|パック|缶|巻|足|着|組|口(?!座|目)|梱|包|ヶ(?!月|所)|箇|ケース|ダース|セット|式|ロット"
          r"|千|万|億|倍|掛|割|ドル|ｍｍ|ｃｍ|ｋｇ|ｍ|ｇ|Ｌ|ℓ|ｐｃｓ|ＰＣＳ|(kg|g|cm|mm|m|ml|mL|L|pcs|PCS|JPY|USD|yen)(?![A-Za-z]))")
 NUM = re.compile(
-    r"[¥￥$€]\s*\d|(JPY|USD)\s*\d|(?<![\w/.])[@＠]\s*\d{2,}"
+    r"[¥￥$€]\s*\d|(JPY|USD)\s*\d|(?<![A-Za-z0-9_/.])[@＠]\s*\d{2,}"
     r"|(?<![A-Za-z_\d第])\d[\d,，]*(\.\d+)?\s*" + UNITS +
     r"|(?<=[A-Za-z])\d[\d,，]*(\.\d+)?" + UNITS +
     r"|(?<![\d,，])\d{1,3}([,，]\d{3})+(?![,，]?\d)"
@@ -40,7 +40,7 @@ def text_of(v):
 
 
 def touches(name, inp):
-    if SELF_DIR.search(inp.get("file_path") or inp.get("notebook_path") or ""):
+    if SELF_DIR.search(str(inp.get("file_path") or inp.get("notebook_path") or "")):
         return False
     if name in ("Edit", "MultiEdit"):
         edits = inp.get("edits") or [inp]

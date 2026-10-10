@@ -61,6 +61,7 @@ CASES = [
     ("改行・タブ直後の数字 → block", [user("x"), tool("Write", file_path="a.md", content="掛率\n0.8")], False, True),
     ("改行直後の数字＋空白＋単位 → block", [user("x"), tool("mcp__Gmail__create_draft", subject="件名", body="単価\n1200 円")], False, True),
     ("500円分・30個目 → block", [user("x"), tool("Write", file_path="a.md", content="500円分のクーポン")], False, True),
+    ("漢字直後の @単価 → block", [user("x"), tool("Write", file_path="a.md", content="鉛筆 単価@1200 数量30")], False, True),
     ("第2部・部屋・口座・3ヶ月 → pass", [user("x"), tool("Write", file_path="a.md", content="第2部の資料、2部屋、1口座、3ヶ月後、1部門")], False, False),
     ("pkg@18.3.1・user@1234 → pass", [user("x"), tool("Write", file_path="a.md", content="npm i pkg@18.3.1、user@1234.example")], False, False),
     # --- 検知漏れを塞ぐ ---
