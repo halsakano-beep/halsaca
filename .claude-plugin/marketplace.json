@@ -1,0 +1,5 @@
+{
+  "name": "halsaca",
+  "owner": { "name": "Hal Sakano" },
+  "plugins": [{ "name": "oribe", "source": "./plugins/oribe" }]
+}
