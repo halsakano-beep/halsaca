@@ -10,14 +10,18 @@ SHELL_WRITES = re.compile(r"(openpyxl|xlsxwriter|python-pptx|from pptx|pptxgenjs
 # 表計算の生成は数字が外部データから来ることが多いので、コマンドに数字がなくても対象
 SHEET_WRITES = re.compile(r"(openpyxl|xlsxwriter|to_excel|to_csv|>\s*\S+\.(csv|tsv)\b)")
 SHEET_FILE = re.compile(r"\.(csv|tsv)$", re.I)
-# 単位は直後に英字が続けば単位と見なさない（python3 make, 5min）。小数・桁区切りはバージョン番号や IP の途中を除く
-UNITS = r"(円|%|％|個|本|枚|件|名|人|台|箱|ケース|ダース|セット|式|ロット|千|万|億|倍|掛|割|ｍｍ|ｃｍ|ｋｇ|(kg|g|cm|mm|m|ml|L|pcs|JPY)(?![A-Za-z]))"
+# 単位は大文字小文字を区別し、直後に英字が続けば単位と見なさない（python3 make, 5min, 5G回線は対象外）。
+# 英字の直後の数字（W100mm, t3mm）は空白を挟まず単位が付くときだけ数える（user1 m は対象外）。
+UNITS = (r"(円|%|％|個|本|枚|件|名|人|台|箱|冊|部|点|袋|パック|缶|巻|足|着|組|口|梱|包|ヶ|箇|ケース|ダース|セット|式|ロット"
+         r"|千|万|億|倍|掛|割|ドル|ｍｍ|ｃｍ|ｋｇ|ｍ|ｇ|Ｌ|ℓ|ｐｃｓ|ＰＣＳ|(kg|g|cm|mm|m|ml|mL|L|pcs|PCS|JPY|USD|yen)(?![A-Za-z]))")
 NUM = re.compile(
-    r"[¥￥$]\s*\d|JPY\s*\d"
-    r"|(?<![\d_])\d[\d,，]*(\.\d+)?\s*" + UNITS +
+    r"[¥￥$€]\s*\d|(JPY|USD)\s*\d|[@＠]\s*\d{2,}"
+    r"|(?<![A-Za-z_\d])\d[\d,，]*(\.\d+)?\s*" + UNITS +
+    r"|(?<=[A-Za-z])\d[\d,，]*(\.\d+)?" + UNITS +
     r"|(?<![\d,，])\d{1,3}([,，]\d{3})+(?![,，]?\d)"
-    r"|(?:(?<=[x×*])|(?<![A-Za-z_\d.]))\d+\.\d+(?!\.?\d)"
-    r"|=\s*(SUM|ROUND|IF|AVERAGE|MIN|MAX|COUNT|VLOOKUP|XLOOKUP|[A-Z]+\d+\s*[*+\-/])", re.I)
+    r"|(?:(?<=[×*])|(?<=(?<![A-Za-z])x)|(?<![A-Za-z_\d.]))\d+\.\d+(?!\.?\d)"
+    r"|\d\s*×\s*\d"
+    r"|=\s*(?i:SUM|ROUND|IF|AVERAGE|MIN|MAX|COUNT|VLOOKUP|XLOOKUP)\w*\s*\(|=\s*\$?[A-Z]+\$?\d+\s*[*+\-/]")
 DIGITS = re.compile(r"\d[\d,]*(\.\d+)?")
 SELF_DIR = re.compile(r"(^|[\\/])\.claude[\\/]")  # Claude Code 自身の設定・フックは対象外
 
