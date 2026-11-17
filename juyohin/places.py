@@ -82,7 +82,8 @@ def parse_place(p: dict) -> dict:
 
 def search(query: str, api_key: str | None = None, session=None, pause: float = 2.0) -> Iterator[dict]:
     """1つの検索語で最大3ページを辿る。"""
-    api_key = api_key or os.environ["GOOGLE_MAPS_API_KEY"]
+    # クラウド環境でキーをプロキシが差し込む場合は、仮の値のまま送ればよい
+    api_key = api_key or os.environ.get("GOOGLE_MAPS_API_KEY", "injected-by-proxy")
     session = session or requests.Session()
     body = {"textQuery": query, "languageCode": "ja", "regionCode": "JP", "pageSize": 20}
     while True:
