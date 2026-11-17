@@ -1,0 +1,36 @@
+# config.toml にコピーして埋める。パスワードとAPIキーは環境変数で渡す:
+#   JUYOHIN_MAIL_PASSWORD  メールのパスワード（アプリパスワード）
+#   GOOGLE_MAPS_API_KEY    Google Places API (New)
+#   ANTHROPIC_API_KEY      Claude API
+
+[sender]
+person = "坂野"
+company = "株式会社アーテック"
+department = "法人事業部"
+address = "〒000-0000 ○○県○○市…"
+phone = "000-000-0000"
+email = "xxxx@artec-kk.co.jp"
+
+[mail]
+smtp_host = "smtp.example.com"
+smtp_port = 587
+imap_host = "imap.example.com"
+imap_port = 993
+username = "xxxx@artec-kk.co.jp"
+
+[targeting]
+min_reviews = 100
+max_reviews = 3000
+
+[sending]
+daily_limit = 25
+min_interval_sec = 120
+max_interval_sec = 360
+followup_after_days = 12
+dazaifu_name_allowed = false
+closing_mode = "request"
+catalog_name = "総合カタログ.pdf"
+
+[notify]
+report_to = "xxxx@artec-kk.co.jp"
+webhook_url = ""

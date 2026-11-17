@@ -1,0 +1,4 @@
+anthropic>=1.12
+requests
+beautifulsoup4
+pytest
