@@ -45,8 +45,39 @@ def test_collect_dedupes_and_drops_unknown():
         yield {"place_id": "a", "name": "A神社", "kind": "shrine"}
         yield {"place_id": "b", "name": "B駐車場", "kind": "unknown"}
 
-    got = list(places.collect(["大阪府"], ["shrine", "temple"], searcher=fake))
+    got = list(places.collect(places.queries_for(["大阪府"], ["shrine", "temple"]), searcher=fake))
     assert [g["place_id"] for g in got] == ["a"]
+
+
+def test_collect_stops_at_monthly_budget(monkeypatch, tmp_path):
+    from juyohin import cli
+    from juyohin.config import Config
+
+    calls = []
+
+    class Resp:
+        def raise_for_status(self):
+            pass
+
+        def json(self):
+            return {"places": [{"id": f"p{len(calls)}", "displayName": {"text": f"{len(calls)}神社"}}],
+                    "nextPageToken": "t"}
+
+    class Session:
+        def post(self, *a, **k):
+            calls.append(1)
+            return Resp()
+
+    real = places.search
+    monkeypatch.setattr(places, "search", lambda q, **k: real(q, session=Session(), pause=0, **k))
+    cfg = Config()
+    cfg.targeting.monthly_request_budget = 4
+    conn = db.connect(tmp_path / "t.sqlite3")
+    args = type("A", (), {"areas": ["奈良市", "天理市"], "areas_file": None, "kinds": ["shrine"], "refresh": False})
+    cli.cmd_collect(args, conn, cfg)
+    assert len(calls) == 4 and db.api_requests(conn) == 4
+    # 「奈良市 神社」は3ページ辿って検索済み、「天理市 神社」は途中で止まり未検索のまま
+    assert db.was_searched(conn, "奈良市 神社") and not db.was_searched(conn, "天理市 神社")
 
 
 def test_parse_place():

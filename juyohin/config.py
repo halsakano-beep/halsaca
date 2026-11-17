@@ -49,6 +49,9 @@ class Targeting:
     # 多すぎる（観光地化した大社）と少なすぎる（無人の小社）を外す。
     min_reviews: int = 100
     max_reviews: int = 3000
+    # Places の Text Search（口コミ件数・サイトURLを取る上位SKU）の無料枠は月1,000リクエスト。
+    # 余裕を見て950で止める。0にすると無制限（課金される）。
+    monthly_request_budget: int = 950
 
 
 @dataclass

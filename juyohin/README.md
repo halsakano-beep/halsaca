@@ -36,7 +36,7 @@ export JUYOHIN_MAIL_PASSWORD=...
 ```bash
 # 1. 候補を集める（都道府県単位だと有名どころに偏るので、本番は市区町村のリストで）
 python -m juyohin.cli collect --areas 奈良県 和歌山県
-python -m juyohin.cli collect --areas-file juyohin/areas.txt
+python -m juyohin.cli collect --areas-file juyohin/areas/nara.txt   # 奈良県39市町村
 
 # 2. 口コミ件数の分布を見て、config.toml の min_reviews / max_reviews を決める
 python -m juyohin.cli status
@@ -82,6 +82,6 @@ python -m pytest juyohin/tests -q
 - **会社のメール環境**：Microsoft 365 で基本認証（ユーザー名とパスワードでの SMTP/IMAP）が止められていれば、OAuth 版の `mailer` が必要になる。Google Workspace ならアプリパスワードで動く。情報システム部門に確認すること
 - **送信ドメインの認証**：会社のドメインの SPF・DKIM・DMARC が設定されているか。されていないと迷惑メールに振り分けられやすい
 - **会社の承認**：会社のアドレスで一斉に営業メールを送ってよいか、社内の規定を確認すること
-- **Places API の料金**：`websiteUri` と `userRatingCount` は上位SKUに含まれる。全国を市区町村単位で回すと数千回の検索になるので、料金表で見積もってから回す
+- **Places API の料金**：`websiteUri` と `userRatingCount` を取るので Text Search Enterprise SKU（無料枠は月1,000リクエスト、超えると1,000件あたり約35ドル）。`collect` は月のリクエスト数を台帳で数え、`monthly_request_budget`（既定950）で自動的に止まる。一度検索した語は検索し直さないので、翌月に同じコマンドで続きから再開できる。Google Cloud 側でも1日の上限（割り当て）を入れておくこと
 - **口コミ件数の閾値**：100〜3,000件は仮の値。`status` の分布を見てから決める
 - **LINE WORKS への通知**：`webhook_url` は汎用のJSONを送るだけ。LINE WORKS の Bot API は認証が必要なので、使うならアダプタを足す

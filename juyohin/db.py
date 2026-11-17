@@ -57,6 +57,16 @@ CREATE TABLE IF NOT EXISTS targets (
 CREATE INDEX IF NOT EXISTS idx_status ON targets(status);
 CREATE INDEX IF NOT EXISTS idx_email ON targets(email);
 
+CREATE TABLE IF NOT EXISTS api_usage (
+    month    TEXT PRIMARY KEY,       -- YYYY-MM
+    requests INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS searched (
+    query       TEXT PRIMARY KEY,    -- 一度検索した語は、--refresh なしでは検索し直さない
+    searched_at TEXT
+);
+
 CREATE TABLE IF NOT EXISTS suppression (
     email      TEXT PRIMARY KEY,     -- アドレスまたは @domain
     reason     TEXT,
@@ -136,6 +146,33 @@ def is_suppressed(conn: sqlite3.Connection, email: str) -> bool:
     domain = "@" + email.split("@")[-1]
     cur = conn.execute("SELECT 1 FROM suppression WHERE email IN (?, ?)", (email, domain))
     return cur.fetchone() is not None
+
+
+def this_month() -> str:
+    return datetime.now().strftime("%Y-%m")
+
+
+def api_requests(conn: sqlite3.Connection, month: str | None = None) -> int:
+    row = conn.execute("SELECT requests FROM api_usage WHERE month = ?", (month or this_month(),)).fetchone()
+    return row[0] if row else 0
+
+
+def count_api_request(conn: sqlite3.Connection) -> None:
+    conn.execute(
+        "INSERT INTO api_usage (month, requests) VALUES (?, 1) "
+        "ON CONFLICT(month) DO UPDATE SET requests = requests + 1",
+        (this_month(),),
+    )
+    conn.commit()
+
+
+def was_searched(conn: sqlite3.Connection, query: str) -> bool:
+    return conn.execute("SELECT 1 FROM searched WHERE query = ?", (query,)).fetchone() is not None
+
+
+def mark_searched(conn: sqlite3.Connection, query: str) -> None:
+    conn.execute("INSERT OR REPLACE INTO searched (query, searched_at) VALUES (?, ?)", (query, now()))
+    conn.commit()
 
 
 def counts(conn: sqlite3.Connection) -> dict[str, int]:

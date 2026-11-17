@@ -36,12 +36,33 @@ def cmd_collect(args, conn, cfg):
         areas += [l.strip() for l in Path(args.areas_file).read_text(encoding="utf-8").splitlines() if l.strip()]
     if not areas:
         areas = places.PREFECTURES
-    new = total = 0
-    for place in places.collect(areas, args.kinds):
-        total += 1
-        new += db.upsert_place(conn, place)
+    budget = cfg.targeting.monthly_request_budget
+    queries = places.queries_for(areas, args.kinds)
+    if not args.refresh:
+        queries = [q for q in queries if not db.was_searched(conn, q)]
+
+    def guard():
+        if budget and db.api_requests(conn) >= budget:
+            raise places.BudgetExceeded
+        db.count_api_request(conn)
+
+    def searcher(query):
+        yield from places.search(query, before_request=guard)
+
+    new = total = done = 0
+    try:
+        for query in queries:
+            for place in places.collect([query], searcher):
+                total += 1
+                new += db.upsert_place(conn, place)
+            conn.commit()
+            db.mark_searched(conn, query)
+            done += 1
+    except places.BudgetExceeded:
         conn.commit()
-    print(f"{total}件を確認、新規 {new}件")
+        print(f"今月の上限（{budget}リクエスト）に達したので止めました。続きは来月、同じコマンドで再開できます。")
+    print(f"検索 {done}/{len(queries)}語、{total}件を確認、新規 {new}件、"
+          f"今月のリクエスト {db.api_requests(conn)}/{budget or '無制限'}")
 
 
 # ── crawl ───────────────────────────────────────────────
@@ -245,6 +266,7 @@ def cmd_poll(args, conn, cfg):
 
 # ── status / phone-list ─────────────────────────────────
 def cmd_status(args, conn, cfg):
+    print(f"今月の Places リクエスト: {db.api_requests(conn)}/{cfg.targeting.monthly_request_budget or '無制限'}\n")
     for status, n in sorted(db.counts(conn).items()):
         print(f"{status:10s} {n:6d}")
     print("\n除外の内訳:")
@@ -286,6 +308,7 @@ def main(argv: list[str] | None = None) -> int:
     s.add_argument("--areas", nargs="*")
     s.add_argument("--areas-file")
     s.add_argument("--kinds", nargs="+", default=["shrine", "temple"], choices=["shrine", "temple"])
+    s.add_argument("--refresh", action="store_true", help="検索済みの語も検索し直す")
     s.set_defaults(func=cmd_collect)
 
     for name, func, default in [("crawl", cmd_crawl, 50), ("profile", cmd_profile, 50), ("draft", cmd_draft, 50),

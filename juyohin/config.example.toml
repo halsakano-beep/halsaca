@@ -21,6 +21,7 @@ username = "xxxx@artec-kk.co.jp"
 [targeting]
 min_reviews = 100
 max_reviews = 3000
+monthly_request_budget = 950   # 無料枠（月1,000リクエスト）の内側で止める
 
 [sending]
 daily_limit = 50  # 立ち上げの2〜3週間は 10→20→30 と段階的に上げる

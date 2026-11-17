@@ -20,6 +20,7 @@ from typing import Callable, Iterator
 import requests
 
 API_URL = "https://places.googleapis.com/v1/places:searchText"
+MAX_PAGES = 3  # API側の上限も3ページ（60件）
 FIELD_MASK = ",".join([
     "places.id", "places.displayName", "places.formattedAddress", "places.userRatingCount",
     "places.rating", "places.websiteUri", "places.types", "nextPageToken",
@@ -80,13 +81,23 @@ def parse_place(p: dict) -> dict:
     }
 
 
-def search(query: str, api_key: str | None = None, session=None, pause: float = 2.0) -> Iterator[dict]:
-    """1つの検索語で最大3ページを辿る。"""
+class BudgetExceeded(Exception):
+    """今月の無料枠の範囲（monthly_request_budget）を使い切った。"""
+
+
+def search(query: str, api_key: str | None = None, session=None, pause: float = 2.0,
+           before_request: Callable[[], None] | None = None) -> Iterator[dict]:
+    """1つの検索語で最大3ページを辿る。1ページ＝1リクエストとして課金される。
+
+    before_request は各リクエストの直前に呼ばれ、予算を超えるなら BudgetExceeded を投げる。
+    """
     # クラウド環境でキーをプロキシが差し込む場合は、仮の値のまま送ればよい
     api_key = api_key or os.environ.get("GOOGLE_MAPS_API_KEY", "injected-by-proxy")
     session = session or requests.Session()
     body = {"textQuery": query, "languageCode": "ja", "regionCode": "JP", "pageSize": 20}
-    while True:
+    for page in range(MAX_PAGES):
+        if before_request:
+            before_request()
         resp = session.post(
             API_URL, json=body, timeout=30,
             headers={"X-Goog-Api-Key": api_key, "X-Goog-FieldMask": FIELD_MASK},
@@ -96,19 +107,22 @@ def search(query: str, api_key: str | None = None, session=None, pause: float = 
         for p in data.get("places", []):
             yield parse_place(p)
         token = data.get("nextPageToken")
-        if not token:
+        if not token or page == MAX_PAGES - 1:
             return
         body = {**body, "pageToken": token}
         time.sleep(pause)  # 次ページのトークンは少し待たないと有効にならない
 
 
-def collect(areas: list[str], kinds: list[str], searcher: Callable = search) -> Iterator[dict]:
-    """地域×種別で検索し、社寺と判定できたものだけ返す（place_id で重複除去）。"""
+def queries_for(areas: list[str], kinds: list[str]) -> list[str]:
+    return [f"{area} {QUERIES[kind]}" for area in areas for kind in kinds]
+
+
+def collect(queries: list[str], searcher: Callable = search) -> Iterator[dict]:
+    """検索語ごとに検索し、社寺と判定できたものだけ返す（place_id で重複除去）。"""
     seen: set[str] = set()
-    for area in areas:
-        for kind in kinds:
-            for place in searcher(f"{area} {QUERIES[kind]}"):
-                if place["place_id"] in seen or place["kind"] == "unknown":
-                    continue
-                seen.add(place["place_id"])
-                yield place
+    for query in queries:
+        for place in searcher(query):
+            if place["place_id"] in seen or place["kind"] == "unknown":
+                continue
+            seen.add(place["place_id"])
+            yield place
