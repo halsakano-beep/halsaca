@@ -53,7 +53,7 @@ class Targeting:
 
 @dataclass
 class Sending:
-    daily_limit: int = 25
+    daily_limit: int = 50
     min_interval_sec: int = 120     # 1通ごとの間隔（下限）
     max_interval_sec: int = 360     # 1通ごとの間隔（上限）
     followup_after_days: int = 12   # 返信がなければ1回だけ追いメール

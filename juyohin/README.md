@@ -47,7 +47,7 @@ python -m juyohin.cli profile --limit 50
 python -m juyohin.cli draft
 python -m juyohin.cli review-export          # out/review_YYYYMMDD.csv
 
-# 4. CSV に ○/× を付けて取り込み、送る（平日9〜16時、1日25通、2〜6分の間隔）
+# 4. CSV に ○/× を付けて取り込み、送る（平日9〜16時、1日50通まで1通ずつ、2〜6分の間隔。16時を過ぎたら残りは翌営業日）
 python -m juyohin.cli review-import juyohin/out/review_20261117.csv
 python -m juyohin.cli send --dry-run         # まず中身を確認
 python -m juyohin.cli send

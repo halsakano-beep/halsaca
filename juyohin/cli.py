@@ -158,7 +158,7 @@ def _sender_ready(cfg: Config, dry_run: bool) -> bool:
     return True
 
 
-def _send_loop(items, cfg, dry_run, on_sent):
+def _send_loop(items, cfg, dry_run, on_sent, force=False):
     from .mailer import SmtpSender, build_message
 
     if dry_run:
@@ -167,6 +167,9 @@ def _send_loop(items, cfg, dry_run, on_sent):
         return
     with SmtpSender(cfg.mail) as smtp:
         for i, (to, subject, body, reply_to, row) in enumerate(items):
+            if not force and datetime.now().hour not in SEND_HOURS:
+                print(f"送信時間帯を過ぎたので止めます（残り {len(items) - i}件は次の営業日に）")
+                return
             msg = build_message(cfg.sender, to, subject, body, in_reply_to=reply_to)
             smtp.send(msg)
             on_sent(row, msg["Message-ID"])
@@ -192,7 +195,7 @@ def cmd_send(args, conn, cfg):
         db.update(conn, row["place_id"], status="sent", message_id=mid, sent_at=db.now())
         conn.commit()
 
-    _send_loop(items, cfg, args.dry_run, on_sent)
+    _send_loop(items, cfg, args.dry_run, on_sent, args.force)
 
 
 def cmd_followup(args, conn, cfg):
@@ -215,7 +218,7 @@ def cmd_followup(args, conn, cfg):
     if not items:
         print("追いメールの対象はありません")
         return
-    _send_loop(items, cfg, args.dry_run, on_sent)
+    _send_loop(items, cfg, args.dry_run, on_sent, args.force)
 
 
 # ── poll ────────────────────────────────────────────────

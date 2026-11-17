@@ -23,7 +23,7 @@ min_reviews = 100
 max_reviews = 3000
 
 [sending]
-daily_limit = 25
+daily_limit = 50  # 立ち上げの2〜3週間は 10→20→30 と段階的に上げる
 min_interval_sec = 120
 max_interval_sec = 360
 followup_after_days = 12
